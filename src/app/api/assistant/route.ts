@@ -29,7 +29,7 @@ ${query}
 
 
     const response = await ai.getGenerativeModel({
-      model: "gemini-1.5-flash-latest",
+      model: "gemini-flash-latest",
     }).generateContent(prompt);
 
     const answer = response.response.text() || "Lo siento, no he podido generar una respuesta.";
