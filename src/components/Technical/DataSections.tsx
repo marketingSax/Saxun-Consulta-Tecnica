@@ -9,7 +9,7 @@ export const DataSections = () => {
     <div className="flex flex-col">
       {/* Modelos Section */}
       <section id="models" className="py-24 px-6 border-t border-white/5">
-        <div className="mx-auto max-w-7xl">
+        <div className="mx-auto w-[95%] max-w-[1600px]">
           <div className="flex items-center gap-4 mb-12">
             <div className="rounded-xl bg-brand-primary/20 p-3 text-brand-primary">
               <Layers size={32} />
@@ -42,7 +42,7 @@ export const DataSections = () => {
 
       {/* Sistemas Section */}
       <section id="systems" className="py-24 px-6 bg-brand-card/30 border-t border-white/5">
-        <div className="mx-auto max-w-7xl">
+        <div className="mx-auto w-[95%] max-w-[1600px]">
           <div className="flex items-center gap-4 mb-12">
             <div className="rounded-xl bg-brand-secondary/20 p-3 text-brand-secondary">
               <Settings size={32} />
@@ -76,7 +76,7 @@ export const DataSections = () => {
 
       {/* Otros Datos Section */}
       <section id="other" className="py-24 px-6 border-t border-white/5">
-        <div className="mx-auto max-w-7xl">
+        <div className="mx-auto w-[95%] max-w-[1600px]">
           <div className="flex items-center gap-4 mb-12">
             <div className="rounded-xl bg-white/10 p-3 text-white">
               <FileText size={32} />
@@ -84,7 +84,7 @@ export const DataSections = () => {
             <h2 className="text-4xl font-black uppercase tracking-tight">Otros Datos Técnicos</h2>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:gap-8 gap-6">
             <div className="p-6 rounded-xl bg-white/5 border border-white/5">
               <div className="font-bold text-lg mb-2 text-brand-primary">Materiales</div>
               <p className="text-xs text-white/60 leading-relaxed">Aluminio de extrusión (aleación 6060/6063 T5) para máxima resistencia estructural y PVC técnico en modelos específicos.</p>

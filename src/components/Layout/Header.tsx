@@ -10,7 +10,7 @@ export const Header = () => {
 
   return (
     <header className="fixed top-0 z-50 w-full glass">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+      <div className="mx-auto flex w-[95%] max-w-[1600px] items-center justify-between px-6 py-4">
         <motion.div 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}

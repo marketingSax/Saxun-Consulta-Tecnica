@@ -51,7 +51,7 @@ export const ChatBox = () => {
 
   return (
     <section id="assistant" className="pb-24 pt-8 px-6 bg-gradient-to-b from-transparent to-brand-secondary/10">
-      <div className="mx-auto max-w-6xl xl:max-w-7xl">
+      <div className="mx-auto w-[95%] max-w-[1600px]">
         <div className="rounded-3xl border border-white/10 bg-brand-card overflow-hidden shadow-2xl shadow-brand-primary/10">
           {/* Header */}
           <div className="bg-white/5 p-6 md:p-8 flex items-center gap-4 border-b border-white/10">
@@ -67,7 +67,7 @@ export const ChatBox = () => {
           {/* Messages */}
           <div 
             ref={scrollRef}
-            className="h-[500px] lg:h-[650px] overflow-y-auto p-6 md:p-10 space-y-8 scrollbar-hide"
+            className="h-[500px] lg:h-[700px] xl:h-[800px] overflow-y-auto p-6 md:p-10 space-y-8 scrollbar-hide"
           >
             <AnimatePresence>
               {messages.map((msg, idx) => (

@@ -13,7 +13,7 @@ export default function Home() {
         <div className="absolute top-0 right-0 -z-10 h-[500px] w-[500px] rounded-full bg-brand-primary/10 blur-[120px]" />
         <div className="absolute bottom-0 left-0 -z-10 h-[500px] w-[500px] rounded-full bg-brand-secondary/10 blur-[120px]" />
 
-        <div className="mx-auto max-w-7xl px-6 text-center">
+        <div className="mx-auto w-[95%] max-w-[1600px] px-6 text-center">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
