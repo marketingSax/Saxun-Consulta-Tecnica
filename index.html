@@ -958,12 +958,16 @@
             progressBar.style.backgroundColor = 'var(--red-saxun)';
 
             try {
+                // Obtener la API KEY de forma segura para la subida inicial
+                const keyResponse = await fetch('/.netlify/functions/get-key');
+                const { key } = await keyResponse.json();
+
                 // Ensure variables from data_index.js are loaded
                 if (typeof inicializarPDFs !== 'function') {
                     throw new Error("Los archivos de datos (data_index.js) no se han cargado correctamente.");
                 }
 
-                pdfUris = await inicializarPDFs(UPLOAD_URL, (current, total, name) => {
+                pdfUris = await inicializarPDFs(key, (current, total, name) => {
                     const percent = Math.round((current / total) * 100);
                     progressBar.style.width = `${percent}%`;
                     loadingText.textContent = `Preparando base de conocimiento... (${current} de ${total} documentos)`;
