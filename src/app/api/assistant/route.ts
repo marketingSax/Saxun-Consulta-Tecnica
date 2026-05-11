@@ -28,12 +28,11 @@ ${query}
 `;
 
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: prompt,
-    });
+    const response = await ai.getGenerativeModel({
+      model: "gemini-1.5-flash-latest",
+    }).generateContent(prompt);
 
-    const answer = response.text || "Lo siento, no he podido generar una respuesta.";
+    const answer = response.response.text() || "Lo siento, no he podido generar una respuesta.";
 
     return NextResponse.json({ answer });
   } catch (error) {
