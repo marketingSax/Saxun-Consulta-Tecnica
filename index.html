@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta Técnica Celosías - Saxun</title>
+    <!-- Marked.js para renderizar Markdown -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* CSS reset & variables */
+        :root {
+            --red-saxun: #E30613;
+            --red-light: #FEF2F2;
+            --red-border: #FECACA;
+            --red-mid: rgba(227, 6, 19, 0.08);
+            --bg-main: #F2F2F0;
+            --sidebar-bg: #FAFAF8;
+            --text-dark: #1A1A1A;
+            --text-light: #6B7280;
+            --bubble-user: #E30613;
+            --bubble-ai: #E0E0E0;
+            /* Helvetica Neue como tipografía principal — bold y limpia */
+            --font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-family);
+            font-weight: 500;
+            /* Helvetica se ve mejor con weight algo más alto */
+            background-color: var(--bg-main);
+            color: var(--text-dark);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Loading Screen */
+        #loading-screen {
+            position: fixed;
+            inset: 0;
+            background-color: #1a1a1a;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        #loading-screen.hidden {
+            display: none;
+        }
+
+        .loading-logo {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 2.5rem;
+            color: white;
+            letter-spacing: -0.5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .loading-logo span {
+            color: var(--red-saxun);
+            font-weight: 300;
+        }
+
+        /* El logo saxun es negro → invertirlo para la pantalla de carga oscura */
+        .loading-logo img {
+            height: 56px;
+            width: auto;
+            margin-bottom: 0;
+            /* Invertir el negro a blanco sobre fondo oscuro */
+            filter: invert(1) brightness(2);
+        }
+
+        .progress-container {
+            width: 320px;
+            height: 6px;
+            background-color: #333;
+            border-radius: 999px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--red-saxun);
+            width: 0%;
+            transition: width 0.4s ease-out;
+            box-shadow: 0 0 10px rgba(227, 6, 19, 0.5);
+        }
+
+        .loading-text {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .loading-subtext {
+            font-size: 0.85rem;
+            color: #888;
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .retry-btn {
+            display: none;
+            margin-top: 1.5rem;
+            padding: 0.75rem 1.5rem;
+            background-color: var(--red-saxun);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: background-color 0.2s;
+        }
+
+        .retry-btn:hover {
+            background-color: #C00510;
+        }
+
+        /* Main App Layout */
+        #app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+        }
+
+        #app-container.hidden {
+            display: none;
+        }
+
+        /* Header */
+        header {
+            background-color: #FFFFFF;
+            padding: 1.2rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 3px solid var(--red-saxun);
+            /* acento rojo prominente */
+            z-index: 10;
+            flex-shrink: 0;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-dark);
+            padding: 0.25rem;
+            align-items: center;
+        }
+
+        .app-title {
+            font-weight: 800;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            letter-spacing: -0.2px;
+        }
+
+        .app-title span {
+            color: var(--red-saxun);
+            /* texto en color de acento */
+            font-weight: 800;
+            /* negrita fuerte */
+            font-size: 1rem;
+            border-left: 2px solid var(--red-saxun);
+            padding-left: 0.85rem;
+            letter-spacing: 0.01em;
+        }
+
+        /* Logo imagen real — no deformar: solo height, width:auto */
+        .app-logo {
+            height: 80px;
+            /* Drásticamente más grande como se solicitó */
+            width: auto;
+            display: block;
+            object-fit: contain;
+        }
+
+        /* Loading screen: logo invertido sobre fondo oscuro */
+        .loading-logo img {
+            height: 50px;
+            width: auto;
+            object-fit: contain;
+            filter: invert(1) brightness(2);
+        }
+
+        .badge {
+            background-color: #10B981;
+            color: white;
+            padding: 0.35rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+
+        /* Main Content area */
+        .content-area {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Sidebar */
+        aside {
+            width: 380px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid #E2E2DF;
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem 1rem;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 20;
+        }
+
+        .sidebar-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .sidebar-title {
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            color: var(--red-saxun);
+            /* acento rojo en las cabeceras de sección */
+            font-weight: 700;
+            margin-bottom: 0.85rem;
+            letter-spacing: 0.1em;
+        }
+
+        /* doc-btn: accesos a documentos */
+        .doc-btn {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            text-align: left;
+            padding: 0.7rem 0.85rem;
+            background-color: #FFFFFF;
+            border: 1px solid #E2E2DF;
+            border-left: 3px solid var(--red-saxun);
+            /* acento rojo izquierda */
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text-dark);
+            transition: all 0.2s ease;
+            font-weight: 600;
+            font-family: var(--font-family);
+            gap: 0.5rem;
+        }
+
+        .doc-btn:hover {
+            background-color: var(--red-light);
+            border-left-color: var(--red-saxun);
+            color: var(--red-saxun);
+        }
+
+        .doc-btn i {
+            width: 15px;
+            height: 15px;
+            flex-shrink: 0;
+        }
+
+        .doc-btn span {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            flex: 1;
+        }
+
+        /* sugg-item: wrapper flex para [btn-texto] + [btn-eliminar] */
+        /* IMPORTANTE: no anidar <button> dentro de <button> — inválido en HTML */
+        .sugg-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 0.5rem;
+        }
+
+        .sugg-btn {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            text-align: left;
+            padding: 0.65rem 0.8rem;
+            background-color: #FFFFFF;
+            border: 1px solid #E2E2DF;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text-dark);
+            transition: all 0.2s ease;
+            font-weight: 600;
+            font-family: var(--font-family);
+            gap: 0.5rem;
+            overflow: hidden;
+            /* para truncar texto */
+        }
+
+        .sugg-btn:hover {
+            background-color: var(--red-light);
+            border-color: var(--red-border);
+            color: var(--red-saxun);
+        }
+
+        .sugg-btn i {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+            color: var(--red-saxun);
+        }
+
+        .sugg-btn .query-text {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Botón × eliminar — HERMANO del sugg-btn, no hijo */
+        .delete-query-btn {
+            background: none;
+            border: none;
+            padding: 5px;
+            cursor: pointer;
+            color: #C0C0C0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            flex-shrink: 0;
+            opacity: 0;
+            transition: opacity 0.15s, color 0.15s, background 0.15s;
+        }
+
+        .delete-query-btn i {
+            width: 13px;
+            height: 13px;
+        }
+
+        .sugg-item:hover .delete-query-btn {
+            opacity: 1;
+        }
+
+        .delete-query-btn:hover {
+            color: var(--red-saxun);
+            background-color: #FEE2E2;
+        }
+
+        .sidebar-title-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-title-wrapper .sidebar-title {
+            margin-bottom: 0;
+        }
+
+        .add-query-btn {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .add-query-btn:hover {
+            background-color: #E5E7EB;
+            color: var(--text-dark);
+        }
+
+        .badge-new {
+            background-color: var(--red-saxun);
+            color: white;
+            font-size: 0.65rem;
+            padding: 0.15rem 0.4rem;
+            border-radius: 9999px;
+            font-weight: bold;
+            letter-spacing: 0.05em;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #E5E7EB;
+            margin: 1.5rem 0;
+        }
+
+        /* Chat Area */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg-main);
+            position: relative;
+        }
+
+        /* Patrón sutil en el área de chat para no ser tan plana */
+        .chat-history {
+            background-image: radial-gradient(circle, #D8D8D4 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        .chat-history {
+            flex: 1;
+            padding: 2rem 10%;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            max-width: 85%;
+            display: flex;
+            flex-direction: column;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            align-self: flex-end;
+        }
+
+        .message.ai {
+            align-self: flex-start;
+        }
+
+        .bubble {
+            padding: 1.25rem 1.5rem;
+            border-radius: 16px;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .user .bubble {
+            background-color: var(--bubble-user);
+            color: white;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 4px 10px rgba(227, 6, 19, 0.15);
+        }
+
+        .ai .bubble {
+            background-color: var(--sidebar-bg);
+            color: var(--text-dark);
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            border: 1px solid #EAEAEA;
+        }
+
+        /* Markdown styling inside AI bubble */
+        .ai .bubble h1,
+        .ai .bubble h2,
+        .ai .bubble h3 {
+            margin-top: 1.25rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-dark);
+            font-weight: 700;
+        }
+
+        .ai .bubble h1:first-child,
+        .ai .bubble h2:first-child,
+        .ai .bubble h3:first-child {
+            margin-top: 0;
+        }
+
+        .ai .bubble p {
+            margin-bottom: 1rem;
+        }
+
+        .ai .bubble p:last-child {
+            margin-bottom: 0;
+        }
+
+        .ai .bubble ul,
+        .ai .bubble ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .ai .bubble li {
+            margin-bottom: 0.25rem;
+        }
+
+        .ai .bubble table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .ai .bubble th,
+        .ai .bubble td {
+            border: 1px solid #E0E0E0;
+            padding: 0.75rem;
+            text-align: left;
+        }
+
+        .ai .bubble th {
+            background-color: #F9FAFB;
+            font-weight: 600;
+        }
+
+        .ai .bubble strong {
+            font-weight: 700;
+        }
+
+        /* Typing indicator */
+        .typing-indicator {
+            display: none;
+            align-self: flex-start;
+            background-color: var(--sidebar-bg);
+            padding: 1.25rem 1.5rem;
+            border-radius: 16px;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            border: 1px solid #EAEAEA;
+            margin-bottom: 1.5rem;
+        }
+
+        .dots {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            height: 20px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background-color: #B0B0B0;
+            border-radius: 50%;
+            animation: blink 1.4s infinite both;
+        }
+
+        .dot:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .dot:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes blink {
+
+            0%,
+            80%,
+            100% {
+                transform: scale(0.6);
+                opacity: 0.4;
+            }
+
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Input Area */
+        .input-area {
+            padding: 1.5rem 10%;
+            background-color: var(--bg-main);
+            border-top: 1px solid transparent;
+            /* seamless integration */
+        }
+
+        .input-container {
+            display: flex;
+            gap: 0.75rem;
+            background-color: white;
+            padding: 0.6rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid #EAEAEA;
+            align-items: center;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .input-container:focus-within {
+            border-color: #D1D5DB;
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .chat-input {
+            flex: 1;
+            border: none;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            outline: none;
+            font-family: inherit;
+            resize: none;
+            background: transparent;
+            color: var(--text-dark);
+        }
+
+        .chat-input::placeholder {
+            color: #9CA3AF;
+        }
+
+        .send-btn {
+            background-color: var(--red-saxun);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0 1.5rem;
+            height: 44px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .send-btn:hover:not(:disabled) {
+            background-color: #C00510;
+            transform: translateY(-1px);
+        }
+
+        .send-btn:disabled {
+            background-color: #D1D5DB;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+
+            .chat-history,
+            .input-area {
+                padding-left: 2rem;
+                padding-right: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+
+            .app-title {
+                font-size: 1.15rem;
+            }
+
+            .app-title span {
+                display: none;
+                /* Hide subtitle on very small screens */
+            }
+
+            aside {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                transform: translateX(-100%);
+            }
+
+            aside.open {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay {
+                display: none;
+                position: absolute;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.4);
+                z-index: 15;
+                backdrop-filter: blur(2px);
+            }
+
+            .sidebar-overlay.open {
+                display: block;
+            }
+
+            .chat-history,
+            .input-area {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+
+            .message {
+                max-width: 95%;
+            }
+
+            .input-container {
+                border-radius: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Pantalla de Carga -->
+    <div id="loading-screen">
+        <div class="loading-logo">
+            <!-- Logo real: se invierte a blanco sobre fondo oscuro con CSS filter -->
+            <img src="logo.png" alt="Saxun">
+        </div>
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <div class="loading-text" id="loading-text">Preparando base de conocimiento...</div>
+        <div class="loading-subtext">Solo ocurre la primera vez. Las siguientes cargas serán instantáneas.</div>
+        <button class="retry-btn" id="retry-btn" onclick="iniciarApp()">Reintentar</button>
+    </div>
+
+    <!-- Aplicación Principal -->
+    <div id="app-container" class="hidden">
+        <header>
+            <div class="header-left">
+                <button class="hamburger" id="hamburger-btn" aria-label="Abrir menú"><i data-lucide="menu"></i></button>
+                <div class="app-title">
+                    <img src="logo.png" alt="Saxun" class="app-logo">
+                    <span>Consulta Técnica Celosías</span>
+                </div>
+            </div>
+
+        </header>
+
+        <div class="content-area">
+            <div class="sidebar-overlay" id="sidebar-overlay"></div>
+            <aside id="sidebar">
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Accesos Rápidos</div>
+                    <button class="doc-btn" onclick="insertarTexto('Basándote en el Catálogo 2024, ')">
+                        <span><i data-lucide="book-open"></i> Catálogo 2024</span>
+                    </button>
+                    <button class="doc-btn" onclick="insertarTexto('Basándote en el Catálogo 2026, ')">
+                        <span><i data-lucide="book-open"></i> Catálogo 2026</span>
+                        <span class="badge-new">NUEVO</span>
+                    </button>
+                    <button class="doc-btn" onclick="insertarTexto('Basándote en el Dossier Técnico, ')">
+                        <span><i data-lucide="settings"></i> Dossier Técnico</span>
+                    </button>
+                </div>
+
+                <hr>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title-wrapper">
+                        <div class="sidebar-title">Consultas Rápidas</div>
+                        <button class="add-query-btn" onclick="añadirConsulta()" title="Añadir consulta">
+                            <i data-lucide="plus"></i>
+                        </button>
+                    </div>
+                    <div id="consultas-container">
+                        <!-- ESTRUCTURA CORRECTA: div.sugg-item > button.sugg-btn + button.delete-query-btn -->
+                        <!-- Los <button> no pueden anidarse en HTML —> usamos div wrapper -->
+                        <div class="sugg-item">
+                            <button class="sugg-btn" onclick="enviarConsultaRápida('¿Qué lamas móviles existen?')"><i
+                                    data-lucide="chevron-right"></i><span class="query-text">¿Qué lamas móviles
+                                    existen?</span></button>
+                            <button class="delete-query-btn" onclick="eliminarConsulta(this)" title="Eliminar"><i
+                                    data-lucide="x"></i></button>
+                        </div>
+                        <div class="sugg-item">
+                            <button class="sugg-btn" onclick="enviarConsultaRápida('Dimensiones de la lama O-300')"><i
+                                    data-lucide="chevron-right"></i><span class="query-text">Dimensiones de la lama
+                                    O-300</span></button>
+                            <button class="delete-query-btn" onclick="eliminarConsulta(this)" title="Eliminar"><i
+                                    data-lucide="x"></i></button>
+                        </div>
+                        <div class="sugg-item">
+                            <button class="sugg-btn"
+                                onclick="enviarConsultaRápida('Diferencias entre catálogo 2024 y 2026')"><i
+                                    data-lucide="chevron-right"></i><span class="query-text">Diferencias entre
+                                    catálogos</span></button>
+                            <button class="delete-query-btn" onclick="eliminarConsulta(this)" title="Eliminar"><i
+                                    data-lucide="x"></i></button>
+                        </div>
+                        <div class="sugg-item">
+                            <button class="sugg-btn"
+                                onclick="enviarConsultaRápida('¿Qué sistemas admiten motorización?')"><i
+                                    data-lucide="chevron-right"></i><span class="query-text">¿Qué motorizados
+                                    hay?</span></button>
+                            <button class="delete-query-btn" onclick="eliminarConsulta(this)" title="Eliminar"><i
+                                    data-lucide="x"></i></button>
+                        </div>
+                        <div class="sugg-item">
+                            <button class="sugg-btn" onclick="enviarConsultaRápida('Lamas con iluminación LED')"><i
+                                    data-lucide="chevron-right"></i><span class="query-text">Lamas con iluminación
+                                    LED</span></button>
+                            <button class="delete-query-btn" onclick="eliminarConsulta(this)" title="Eliminar"><i
+                                    data-lucide="x"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <main>
+                <div class="chat-history" id="chat-history">
+                    <!-- Mensaje inicial de la IA -->
+                    <div class="message ai">
+                        <div class="bubble">
+                            <p>¡Hola! Soy el asistente técnico de Saxun. He cargado correctamente los catálogos de 2024
+                                y 2026, así como el dossier técnico.</p>
+                            <p>¿En qué puedo ayudarte hoy?</p>
+                        </div>
+                    </div>
+                    <div class="typing-indicator" id="typing-indicator">
+                        <div class="dots">
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-area">
+                    <div class="input-container">
+                        <input type="text" id="chat-input" class="chat-input"
+                            placeholder="Pregunta sobre cualquier modelo, dimensión, sistema de anclaje..."
+                            autocomplete="off">
+                        <button id="send-btn" class="send-btn">Enviar</button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Data Scripts -->
+    <script src="data_pdf1.js"></script>
+    <script src="data_pdf2.js"></script>
+    <script src="data_pdf3.js"></script>
+    <script src="data_index.js"></script>
+
+    <!-- App Logic -->
+    <script>
+        const API_KEY = "AIzaSyBgjj_jEr5RKplCKgI_oDZVvnXQkggxAyQ";
+        const MODEL_NAME = "gemini-flash-latest";
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${API_KEY}`;
+
+        let pdfUris = [];
+
+
+        // UI Elements
+        const loadingScreen = document.getElementById('loading-screen');
+        const appContainer = document.getElementById('app-container');
+        const progressBar = document.getElementById('progress-bar');
+        const loadingText = document.getElementById('loading-text');
+        const retryBtn = document.getElementById('retry-btn');
+        const chatHistory = document.getElementById('chat-history');
+        const chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-btn');
+        const typingIndicator = document.getElementById('typing-indicator');
+
+        // Sidebar Responsive
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+        // Initialize icons
+        lucide.createIcons();
+
+        /**
+         * Crea un div.sugg-item con [button.sugg-btn] + [button.delete-query-btn].
+         * Estructura correcta: NO se anidan buttons en HTML.
+         */
+        function crearBtnConsulta(texto, enviar) {
+            const consulta = enviar || texto;
+            const item = document.createElement('div');
+            item.className = 'sugg-item';
+            item.innerHTML = `
+                <button class="sugg-btn"><i data-lucide="chevron-right"></i><span class="query-text">${texto}</span></button>
+                <button class="delete-query-btn" title="Eliminar"><i data-lucide="x"></i></button>
+            `;
+            // Asignar eventos después de crear el DOM
+            item.querySelector('.sugg-btn').addEventListener('click', () => enviarConsultaRápida(consulta));
+            item.querySelector('.delete-query-btn').addEventListener('click', () => eliminarConsulta(item.querySelector('.delete-query-btn')));
+            return item;
+        }
+
+        /** Elimina el div.sugg-item padre con animación */
+        function eliminarConsulta(deleteBtn) {
+            const item = deleteBtn.closest('.sugg-item');
+            if (item) {
+                item.style.transition = 'opacity 0.2s, transform 0.2s, max-height 0.25s';
+                item.style.opacity = '0';
+                item.style.transform = 'translateX(-10px)';
+                setTimeout(() => item.remove(), 220);
+            }
+        }
+
+        function añadirConsulta() {
+            const nuevaConsulta = prompt("Introduce la nueva consulta recurrente:");
+            if (nuevaConsulta && nuevaConsulta.trim() !== '') {
+                const item = crearBtnConsulta(nuevaConsulta.trim());
+                document.getElementById('consultas-container').appendChild(item);
+                lucide.createIcons({ root: item });
+            }
+        }
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('open');
+            sidebarOverlay.classList.toggle('open');
+        }
+
+        hamburgerBtn.addEventListener('click', toggleSidebar);
+        sidebarOverlay.addEventListener('click', toggleSidebar);
+
+        // Initialize App
+        async function iniciarApp() {
+            loadingScreen.classList.remove('hidden');
+            appContainer.classList.add('hidden');
+            retryBtn.style.display = 'none';
+            progressBar.style.width = '0%';
+            progressBar.style.backgroundColor = 'var(--red-saxun)';
+
+            try {
+                // Ensure variables from data_index.js are loaded
+                if (typeof inicializarPDFs !== 'function') {
+                    throw new Error("Los archivos de datos (data_index.js) no se han cargado correctamente.");
+                }
+
+                pdfUris = await inicializarPDFs(API_KEY, (current, total, name) => {
+                    const percent = Math.round((current / total) * 100);
+                    progressBar.style.width = `${percent}%`;
+                    loadingText.textContent = `Preparando base de conocimiento... (${current} de ${total} documentos)`;
+                });
+
+                // Success
+                setTimeout(() => {
+                    loadingScreen.classList.add('hidden');
+                    appContainer.classList.remove('hidden');
+                    chatInput.focus();
+                }, 500); // Pequeña espera para mostrar la barra llena
+
+            } catch (error) {
+                console.error("Error inicializando PDFs:", error);
+                loadingText.textContent = `Error: ${error.message}`;
+                progressBar.style.backgroundColor = '#E30613';
+                progressBar.style.width = '100%';
+                retryBtn.style.display = 'block';
+            }
+        }
+
+        // Action Handlers
+        function insertarTexto(texto) {
+            chatInput.value = texto;
+            chatInput.focus();
+            if (window.innerWidth <= 768) toggleSidebar();
+        }
+
+        function enviarConsultaRápida(pregunta) {
+            chatInput.value = pregunta;
+            enviarMensaje();
+            if (window.innerWidth <= 768) toggleSidebar();
+        }
+
+        function renderMarkdown(text) {
+            if (typeof marked !== 'undefined') {
+                // Usar opciones por defecto de marked, que soportan tablas y listas
+                return marked.parse(text);
+            }
+            // Fallback muy básico si marked.js falla al cargar
+            return text.replace(/\n/g, '<br>');
+        }
+
+        function appendMessage(role, text) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${role}`;
+
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.className = 'bubble';
+
+            if (role === 'ai') {
+                bubbleDiv.innerHTML = renderMarkdown(text);
+            } else {
+                bubbleDiv.textContent = text;
+            }
+
+            msgDiv.appendChild(bubbleDiv);
+            chatHistory.insertBefore(msgDiv, typingIndicator);
+            scrollToBottom();
+        }
+
+        function scrollToBottom() {
+            // Un pequeño delay para permitir que el DOM se actualice, 
+            // útil especialmente cuando marked.js renderiza contenido grande (tablas, etc.)
+            setTimeout(() => {
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+            }, 50);
+        }
+
+        async function enviarMensaje() {
+            const texto = chatInput.value.trim();
+            if (!texto) return;
+
+            // Bloquear input
+            chatInput.value = '';
+            chatInput.disabled = true;
+            sendBtn.disabled = true;
+
+            // Mostrar mensaje de usuario
+            appendMessage('user', texto);
+
+            // Mostrar typing indicator
+            typingIndicator.style.display = 'flex';
+            scrollToBottom();
+
+            try {
+                // Preparar payload usando funciones de data_index.js
+                const requestBody = {
+                    system_instruction: {
+                        parts: [{ text: typeof SYSTEM_PROMPT !== 'undefined' ? SYSTEM_PROMPT : "Eres un asistente técnico experto." }]
+                    },
+                    contents: [{
+                        role: "user",
+                        parts: [
+                            ...buildPDFParts(pdfUris),
+                            { text: texto }
+                        ]
+                    }],
+                    generationConfig: {
+                        temperature: 0.2,
+                        maxOutputTokens: 2048
+                    }
+                };
+
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (!response.ok) {
+                    const errorDetails = await response.json().catch(() => ({}));
+                    console.error("Detalles del error API:", errorDetails);
+                    throw new Error(`Error HTTP: ${response.status} - ${errorDetails.error?.message || 'Error desconocido'}`);
+                }
+
+                const data = await response.json();
+
+                if (data.candidates && data.candidates.length > 0 && data.candidates[0].content) {
+                    const aiText = data.candidates[0].content.parts.map(p => p.text).join('\n');
+                    appendMessage('ai', aiText);
+                } else {
+                    throw new Error("Respuesta inválida de la IA.");
+                }
+
+            } catch (error) {
+                console.error("Error al consultar:", error);
+                appendMessage('ai', "Lo siento, ha ocurrido un error al procesar tu consulta. Por favor, revisa tu conexión y vuelve a intentarlo.");
+            } finally {
+                // Ocultar typing indicator y desbloquear
+                typingIndicator.style.display = 'none';
+                chatInput.disabled = false;
+                sendBtn.disabled = false;
+                chatInput.focus();
+                scrollToBottom();
+            }
+        }
+
+        // Event Listeners
+        sendBtn.addEventListener('click', enviarMensaje);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                enviarMensaje();
+            }
+        });
+
+        // Iniciar
+        window.onload = iniciarApp;
+
+    </script>
+</body>
+
+</html>
