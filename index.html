@@ -877,9 +877,9 @@
 
     <!-- App Logic -->
     <script>
-        const API_KEY = "AIzaSyBgjj_jEr5RKplCKgI_oDZVvnXQkggxAyQ";
-        const MODEL_NAME = "gemini-flash-latest";
-        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${API_KEY}`;
+        // URLs de Proxy para Netlify (Seguridad)
+        const API_URL = "/.netlify/functions/gemini-proxy";
+        const UPLOAD_URL = "/.netlify/functions/upload-proxy";
 
         let pdfUris = [];
 
@@ -963,7 +963,7 @@
                     throw new Error("Los archivos de datos (data_index.js) no se han cargado correctamente.");
                 }
 
-                pdfUris = await inicializarPDFs(API_KEY, (current, total, name) => {
+                pdfUris = await inicializarPDFs(UPLOAD_URL, (current, total, name) => {
                     const percent = Math.round((current / total) * 100);
                     progressBar.style.width = `${percent}%`;
                     loadingText.textContent = `Preparando base de conocimiento... (${current} de ${total} documentos)`;

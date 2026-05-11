@@ -27,29 +27,26 @@ function base64ToBlob(base64, mimeType) {
   return new Blob([arr], { type: mimeType });
 }
 
-// Subir UN PDF a Gemini File API
-async function subirPDF(pdf, apiKey) {
+// Subir UN PDF al Proxy de Netlify (Seguridad)
+async function subirPDF(pdf, proxyUrl) {
   const blob = base64ToBlob(pdf.base64, pdf.mimeType);
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/upload/v1beta/files?key=${apiKey}`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': pdf.mimeType,
-        'X-Goog-Upload-Protocol': 'raw',
-        'X-Goog-Upload-Header-Content-Length': blob.size,
-        'X-Goog-Upload-Header-Content-Type': pdf.mimeType,
-      },
-      body: blob
-    }
-  );
+  const response = await fetch(proxyUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': pdf.mimeType,
+      'X-Goog-Upload-Protocol': 'raw',
+      'X-Goog-Upload-Header-Content-Length': blob.size,
+      'X-Goog-Upload-Header-Content-Type': pdf.mimeType,
+    },
+    body: blob
+  });
   if (!response.ok) throw new Error(`Error subiendo ${pdf.nombre}: ${response.statusText}`);
   const data = await response.json();
   return data.file.uri;
 }
 
-// Inicializar PDFs (subir si no están cacheados)
-async function inicializarPDFs(apiKey, onProgress) {
+// Inicializar PDFs (usando el proxy de seguridad)
+async function inicializarPDFs(proxyUrl, onProgress) {
   const CACHE_KEY = 'saxun_gemini_uris';
   const CACHE_EXPIRY = 47 * 60 * 60 * 1000; // 47 horas en ms
 
@@ -62,12 +59,12 @@ async function inicializarPDFs(apiKey, onProgress) {
     }
   } catch(e) {}
 
-  // Subir PDFs a Gemini
+  // Subir PDFs a través del Proxy
   const uris = [];
   for (let i = 0; i < PDF_DATA.length; i++) {
     const pdf = PDF_DATA[i];
     if (onProgress) onProgress(i + 1, PDF_DATA.length, pdf.nombre);
-    const uri = await subirPDF(pdf, apiKey);
+    const uri = await subirPDF(pdf, proxyUrl);
     uris.push({ nombre: pdf.nombre, uri });
   }
 
