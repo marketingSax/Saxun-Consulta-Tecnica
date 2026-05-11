@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
 import { fullDossierContext } from "@/data/dossier-context-full";
 
-// API key proporcionada por el usuario
-const ai = new GoogleGenAI({ apiKey: "AIzaSyBgjj_jEr5RKplCKgI_oDZVvnXQkggxAyQ" });
+// API key gestionada mediante variables de entorno
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
 
 export async function POST(req: Request) {
   try {
