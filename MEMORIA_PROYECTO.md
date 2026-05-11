@@ -7,7 +7,8 @@
 
 ## 2. Stack Tecnológico (Vibrante / Premium)
 - **Framework:** Next.js 16 (App Router) con TypeScript.
-- **Estilado:** Tailwind CSS v4 (Mobile-first, optimizado para Ultra-Wide PC).
+- **Estilado:** Tailwind CSS v4 (Preset: Dynamic Monochrome Agency).
+- **Diseño:** Estética de alto contraste (Negros profundos #0A0A0A, Blancos puros #FAFAFA y acento Saxun Orange #F97316).
 - **IA:** Google Gemini 1.5 Flash (`gemini-flash-latest`).
 - **Animaciones:** Framer Motion (Interacciones fluidas).
 - **Iconografía:** Lucide-React.

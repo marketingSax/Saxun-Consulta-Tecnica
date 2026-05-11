@@ -2,20 +2,30 @@
 @plugin "@tailwindcss/typography";
 
 @theme {
-  --color-brand-primary: #FF3E00;
-  --color-brand-secondary: #7000FF;
-  --color-brand-accent: #00F0FF;
-  --color-brand-bg: #050505;
-  --color-brand-card: #121212;
+  --brand-primary: #f97316;
+  --brand-secondary: #0a0a0a;
+  --brand-accent: #a3a3a3;
+  --brand-surface: #171717;
+  --brand-card: #171717;
+  --text-white: #fafafa;
+  --text-muted: #737373;
+  --border-color: #262626;
+
+  --color-brand-primary: var(--brand-primary);
+  --color-brand-secondary: var(--brand-secondary);
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-card: var(--brand-card);
+  --color-brand-surface: var(--brand-surface);
+  --color-brand-bg: var(--brand-secondary);
   
   --font-display: "Montserrat", sans-serif;
 }
 
 :root {
-  --background: #050505;
-  --foreground: #ffffff;
-  --primary: #FF3E00;
-  --secondary: #7000FF;
+  --background: var(--brand-secondary);
+  --foreground: var(--text-white);
+  --primary: var(--brand-primary);
+  --secondary: var(--brand-secondary);
 }
 
 @layer base {
@@ -31,7 +41,7 @@
   }
   
   .text-vibrant {
-    @apply bg-gradient-to-r from-brand-primary via-brand-secondary to-brand-accent bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-white via-white to-brand-primary bg-clip-text text-transparent;
   }
   
   .btn-vibrant {
