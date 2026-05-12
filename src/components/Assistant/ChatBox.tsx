@@ -89,12 +89,35 @@ export const ChatBox = () => {
               ))}
             </AnimatePresence>
             {isLoading && (
-              <div className="flex justify-start">
-                <div className="flex gap-3 items-center text-white/50 text-sm font-bold">
-                  <Loader2 className="animate-spin" size={16} />
-                  Consultando dossier masivo...
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="flex justify-start"
+              >
+                <div className="flex gap-4 max-w-[90%] lg:max-w-[80%] flex-row">
+                  <div className="mt-2 flex-shrink-0 rounded-full p-2 h-10 w-10 flex items-center justify-center bg-white/10">
+                    <Bot size={18} className="text-white/60" />
+                  </div>
+                  <div className="rounded-2xl p-5 md:p-6 bg-white/5 border border-white/10 flex items-center gap-2">
+                    {[0, 1, 2].map((i) => (
+                      <motion.div
+                        key={i}
+                        animate={{ 
+                          scale: [1, 1.4, 1],
+                          opacity: [0.4, 1, 0.4]
+                        }}
+                        transition={{
+                          duration: 0.8,
+                          repeat: Infinity,
+                          delay: i * 0.15,
+                          ease: "easeInOut"
+                        }}
+                        className="w-2 h-2 bg-white rounded-full"
+                      />
+                    ))}
+                  </div>
                 </div>
-              </div>
+              </motion.div>
             )}
           </div>
 
