@@ -5,6 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Consulta Técnica Celosías - Saxun</title>
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#E30613">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Saxun">
+    <link rel="apple-touch-icon" href="logo.png">
+    <link rel="manifest" href="manifest.json">
     <!-- Marked.js para renderizar Markdown -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
     <!-- Lucide Icons -->
@@ -490,11 +497,11 @@
         }
 
         .ai .bubble {
-            background-color: var(--sidebar-bg);
+            background-color: #FFFFFF;
             color: var(--text-dark);
             border-bottom-left-radius: 4px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
-            border: 1px solid #EAEAEA;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid #E2E2DF;
         }
 
         /* Markdown styling inside AI bubble */
@@ -608,9 +615,11 @@
         /* Input Area */
         .input-area {
             padding: 1.5rem 10%;
-            background-color: var(--bg-main);
-            border-top: 1px solid transparent;
-            /* seamless integration */
+            background: rgba(242, 242, 240, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(226, 226, 223, 0.5);
+            z-index: 5;
         }
 
         .input-container {
@@ -619,10 +628,10 @@
             background-color: white;
             padding: 0.6rem;
             border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-            border: 1px solid #EAEAEA;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+            border: 1px solid #E2E2DF;
             align-items: center;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .input-container:focus-within {
@@ -869,11 +878,7 @@
         </div>
     </div>
 
-    <!-- Data Scripts -->
-    <script src="data_pdf1.js"></script>
-    <script src="data_pdf2.js"></script>
-    <script src="data_pdf3.js"></script>
-    <script src="data_index.js"></script>
+    <!-- Data Scripts (Loaded via Lazy Loading in iniciarApp) -->
 
     <!-- App Logic -->
     <script>
@@ -949,6 +954,17 @@
         hamburgerBtn.addEventListener('click', toggleSidebar);
         sidebarOverlay.addEventListener('click', toggleSidebar);
 
+        /** Función auxiliar para cargar scripts dinámicamente con promesa */
+        function loadScript(src) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = resolve;
+                script.onerror = () => reject(new Error(`Error al cargar el archivo: ${src}`));
+                document.body.appendChild(script);
+            });
+        }
+
         // Initialize App
         async function iniciarApp() {
             loadingScreen.classList.remove('hidden');
@@ -958,31 +974,44 @@
             progressBar.style.backgroundColor = 'var(--red-saxun)';
 
             try {
+                // FASE 1: Carga de archivos de datos (Lazy Loading)
+                const dataFiles = ['data_pdf1.js', 'data_pdf2.js', 'data_pdf3.js', 'data_index.js'];
+                const totalFiles = dataFiles.length;
+                
+                for (let i = 0; i < totalFiles; i++) {
+                    loadingText.textContent = `Descargando catálogos técnicos... (${i + 1}/${totalFiles})`;
+                    await loadScript(dataFiles[i]);
+                    const progress = Math.round(((i + 1) / totalFiles) * 50); // Ocupa el primer 50%
+                    progressBar.style.width = `${progress}%`;
+                }
+
+                // FASE 2: Preparación de la API
+                loadingText.textContent = "Conectando con el motor de inteligencia técnica...";
+                
                 // Obtener la API KEY de forma segura para la subida inicial
                 const keyResponse = await fetch('/.netlify/functions/get-key');
                 const { key } = await keyResponse.json();
 
-                // Ensure variables from data_index.js are loaded
-                if (typeof inicializarPDFs !== 'function') {
-                    throw new Error("Los archivos de datos (data_index.js) no se han cargado correctamente.");
-                }
-
+                // FASE 3: Inicializar PDFs en Gemini
                 pdfUris = await inicializarPDFs(key, (current, total, name) => {
-                    const percent = Math.round((current / total) * 100);
+                    const percent = 50 + Math.round((current / total) * 50); // Ocupa del 50% al 100%
                     progressBar.style.width = `${percent}%`;
-                    loadingText.textContent = `Preparando base de conocimiento... (${current} de ${total} documentos)`;
+                    loadingText.textContent = `Sincronizando conocimiento: ${name}...`;
                 });
 
-                // Success
+                // Finalización exitosa
+                loadingText.textContent = "¡Todo listo! Iniciando asistente...";
+                progressBar.style.width = '100%';
+
                 setTimeout(() => {
                     loadingScreen.classList.add('hidden');
                     appContainer.classList.remove('hidden');
                     chatInput.focus();
-                }, 500); // Pequeña espera para mostrar la barra llena
+                }, 800);
 
             } catch (error) {
-                console.error("Error inicializando PDFs:", error);
-                loadingText.textContent = `Error: ${error.message}`;
+                console.error("Error en la inicialización:", error);
+                loadingText.textContent = `Error crítico: ${error.message}`;
                 progressBar.style.backgroundColor = '#E30613';
                 progressBar.style.width = '100%';
                 retryBtn.style.display = 'block';
@@ -1115,6 +1144,15 @@
                 enviarMensaje();
             }
         });
+
+        // Registro de Service Worker para capacidades PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(reg => console.log('Service Worker registrado con éxito'))
+                    .catch(err => console.error('Error al registrar Service Worker:', err));
+            });
+        }
 
         // Iniciar
         window.onload = iniciarApp;
