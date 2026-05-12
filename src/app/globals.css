@@ -2,8 +2,8 @@
 @plugin "@tailwindcss/typography";
 
 @theme {
-  --brand-primary: #E30613;
-  --brand-primary-rgb: 227, 6, 19;
+  --brand-primary: #f97316;
+  --brand-primary-rgb: 249, 115, 22;
   --brand-secondary: #0a0a0a;
   --brand-secondary-rgb: 10, 10, 10;
   --brand-accent: #a3a3a3;
