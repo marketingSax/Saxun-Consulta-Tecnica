@@ -4,7 +4,7 @@
 
 [[edge_functions]]
   function = "gemini-stream"
-  path = "/.netlify/functions/gemini-proxy"
+  path = "/.netlify/edge-functions/gemini-stream"
 
 [[redirects]]
   from = "/*"
