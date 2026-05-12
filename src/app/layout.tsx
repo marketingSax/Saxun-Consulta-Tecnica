@@ -20,6 +20,10 @@ export const metadata: Metadata = {
   title: "Dossier Celosías Saxun | Inteligencia Técnica",
   description: "Consulta avanzada de especificaciones técnicas Saxun con IA",
   manifest: "/manifest.json",
+  icons: {
+    icon: "/icon.png",
+    apple: "/icon.png",
+  },
 };
 
 export default function RootLayout({
