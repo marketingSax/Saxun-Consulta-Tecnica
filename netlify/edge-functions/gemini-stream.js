@@ -16,8 +16,8 @@ export default async (request, context) => {
   }
 
   try {
-    // En Edge Functions se usa Netlify.env o Deno.env
-    const API_KEY = Netlify.env.get("GEMINI_API_KEY");
+    // En Edge Functions se usa Deno.env para acceder a las variables de entorno
+    const API_KEY = Deno.env.get("GEMINI_API_KEY");
     if (!API_KEY) {
       return new Response(JSON.stringify({ error: "API Key no configurada en Netlify" }), { status: 500 });
     }

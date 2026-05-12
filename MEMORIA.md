@@ -35,7 +35,7 @@ Aplicación web (PWA) de consulta técnica avanzada para sistemas de celosías S
 ## ✅ Hitos Completados
 - [x] **Optimización de PWA:** Implementado `manifest.json` y `service-worker.js`.
 - [x] **Lazy Loading:** Los scripts de datos se cargan dinámicamente con barra de progreso informando al usuario (Ahorro de ~50MB en carga inicial bloqueante).
-- [x] **Seguridad & Streaming:** Proxy migrado a Edge Functions bajo el path `/api/` para evitar conflictos de Netlify y asegurar streaming estable.
+- [x] **Seguridad & Streaming:** Proxy estabilizado en Edge Functions mediante `/api/gemini-stream`, eliminando redundancias en `netlify.toml` y mejorando la detección de errores de tipo MIME.
 - [x] **UX en Tiempo Real:** Streaming con buffer SSE robusto (`lines.pop()` para chunks parciales).
 - [x] **Historial Multi-turno:** Conversación con memoria (PDFs solo en 1er mensaje, rollback en error).
 - [x] **Debug Mejorado:** Lectura del body de errores HTTP para diagnóstico real.

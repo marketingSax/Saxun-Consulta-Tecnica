@@ -6,12 +6,7 @@
   function = "gemini-stream"
   path = "/api/gemini-stream"
 
-[[redirects]]
-  from = "/api/*"
-  to = "/api/:splat"
-  status = 200
-  force = true
-
+# El redirect SPA debe ser el último y no debe forzar rutas de API
 [[redirects]]
   from = "/*"
   to = "/index.html"

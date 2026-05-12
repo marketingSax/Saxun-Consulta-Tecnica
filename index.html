@@ -1124,6 +1124,12 @@
                     throw new Error(`Error HTTP: ${response.status} - ${errorBody || 'Error desconocido'}`);
                 }
 
+                // Verificar que no estemos recibiendo un HTML (indicativo de redirect fallido)
+                const contentType = response.headers.get('Content-Type');
+                if (contentType && contentType.includes('text/html')) {
+                    throw new Error("El servidor devolvió HTML en lugar de un stream. Posible error de configuración en las funciones de Netlify.");
+                }
+
                 // Ocultar indicador al recibir respuesta
                 typingIndicator.style.display = 'none';
 
