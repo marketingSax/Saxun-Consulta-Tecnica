@@ -25,8 +25,7 @@ export default async (request, context) => {
     const body = await request.json();
     
     // Usamos el endpoint de streaming de Gemini
-    // Nota: 'gemini-1.5-flash-latest' falla con 404 en v1beta, usamos 'gemini-1.5-flash'
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:streamGenerateContent?alt=sse&key=${API_KEY}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:streamGenerateContent?alt=sse&key=${API_KEY}`;
     
     const response = await fetch(url, {
       method: "POST",
