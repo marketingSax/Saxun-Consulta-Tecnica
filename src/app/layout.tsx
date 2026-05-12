@@ -21,7 +21,9 @@ export const metadata: Metadata = {
   description: "Consulta avanzada de especificaciones técnicas Saxun con IA",
   manifest: "/manifest.json",
   icons: {
-    icon: "/logo.png",
+    icon: "/icon.png",
+    shortcut: "/icon.png",
+    apple: "/icon.png",
   },
 };
 
