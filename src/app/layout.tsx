@@ -3,6 +3,7 @@ import { Montserrat, Inter } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Layout/Header";
 import { Footer } from "@/components/Layout/Footer";
+import { TabProvider } from "@/context/TabContext";
 
 const montserrat = Montserrat({ 
   subsets: ["latin"], 
@@ -29,11 +30,13 @@ export default function RootLayout({
   return (
     <html lang="es" className={`${montserrat.variable} ${inter.variable}`}>
       <body className="font-sans bg-brand-bg text-white">
-        <Header />
-        <main className="min-h-screen pt-20">
-          {children}
-        </main>
-        <Footer />
+        <TabProvider>
+          <Header />
+          <main className="min-h-screen pt-20">
+            {children}
+          </main>
+          <Footer />
+        </TabProvider>
       </body>
     </html>
   );
