@@ -187,7 +187,7 @@ export const ChatBox = ({ externalPrompt }: { externalPrompt?: string }) => {
             </div>
           </div>
           <button 
-            onClick={handleSend}
+            onClick={() => handleSend()}
             disabled={isLoading}
             className="bg-brand-primary text-white rounded-2xl px-10 py-5 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center shadow-[0_0_30px_rgba(var(--brand-primary-rgb),0.3)]"
           >
