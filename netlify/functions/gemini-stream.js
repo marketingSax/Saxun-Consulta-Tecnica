@@ -22,25 +22,50 @@ export default async (request, context) => {
     }
 
     const body = await request.json();
-    
-    // Usamos gemini-flash-latest como identificador del modelo
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:streamGenerateContent?alt=sse&key=${API_KEY}`;
     
-    const response = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
+    // Usamos un ReadableStream para responder inmediatamente al cliente y evitar timeouts de inactividad
+    const stream = new ReadableStream({
+      async start(controller) {
+        const encoder = new TextEncoder();
+        try {
+          // Enviamos un comentario SSE inmediato para mantener la conexión activa
+          controller.enqueue(encoder.encode(": ping\n\n"));
+
+          const response = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            controller.enqueue(encoder.encode(`data: {"error": "Error de Gemini: ${errorText.replace(/"/g, '\\"')}"}\n\n`));
+            controller.close();
+            return;
+          }
+
+          const reader = response.body.getReader();
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            controller.enqueue(value);
+          }
+          controller.close();
+        } catch (error) {
+          console.error("Error en el stream de la función:", error);
+          controller.enqueue(encoder.encode(`data: {"error": "Error interno: ${error.message}"}\n\n`));
+          controller.close();
+        }
+      }
     });
 
-    // Reenviamos el stream directamente al cliente
-    // Las Netlify Functions estándar permiten hasta 26s de ejecución (más que los 10s de las Edge)
-    return new Response(response.body, {
-      status: response.status,
+    return new Response(stream, {
       headers: {
-        "Content-Type": response.ok ? "text/event-stream" : "application/json",
+        "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
         "Connection": "keep-alive",
-        "X-Accel-Buffering": "no",
+        "X-Accel-Buffering": "no", // Crucial para desactivar buffering en proxies
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type"
