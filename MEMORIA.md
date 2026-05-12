@@ -39,6 +39,7 @@ Aplicación web (PWA) de consulta técnica avanzada para sistemas de celosías S
 - [x] **Optimización de Layout:** Uso de `max-width` en el área de chat para asegurar legibilidad en pantallas grandes y centrado dinámico del área de input.
 - [x] **Refinamiento Táctil Premium:** Ajuste de hitboxes, prevención de zoom automático en iOS (font-size 16px en inputs) y eliminación de resaltado táctil predeterminado.
 - [x] **Visualización de Datos:** Soporte mejorado para tablas técnicas con scroll horizontal suave y scrollbars personalizados de estilo minimalista.
+- [x] **Animación de Carga en Burbujas:** Implementada animación de "typing" dentro del bocadillo de la IA para una respuesta visual inmediata.
 - [x] **Historial Multi-turno:** Conversación con memoria y gestión de contexto optimizada.
 - [x] **Refinamiento UI Premium:** Cabecera fina, logo fluido y mensaje de bienvenida personalizado.
 - [x] **SW v4:** `skipWaiting` + `clients.claim` + Network-First para HTML.
