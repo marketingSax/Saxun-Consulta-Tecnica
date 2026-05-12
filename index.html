@@ -8,6 +8,7 @@
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#E30613">
     <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Saxun">
     <link rel="apple-touch-icon" href="logo.png">
@@ -886,6 +887,8 @@
         const UPLOAD_URL = "/.netlify/functions/upload-proxy";
 
         let pdfUris = [];
+        // Historial de conversación para contexto multi-turno
+        let conversationHistory = [];
 
 
         // UI Elements
@@ -1086,21 +1089,25 @@
             let aiMessageElement = null;
 
             try {
-                // Preparar payload usando funciones de data_index.js
+                // ── Construir turno del usuario ──
+                // Los PDFs solo van en el PRIMER mensaje para no explotar el contexto
+                const esFirstMessage = conversationHistory.length === 0;
+                const userParts = esFirstMessage
+                    ? [...buildPDFParts(pdfUris), { text: texto }]
+                    : [{ text: texto }];
+
+                // Añadir turno del usuario al historial
+                conversationHistory.push({ role: "user", parts: userParts });
+
+                // Preparar payload con historial completo
                 const requestBody = {
                     system_instruction: {
                         parts: [{ text: typeof SYSTEM_PROMPT !== 'undefined' ? SYSTEM_PROMPT : "Eres un asistente técnico experto." }]
                     },
-                    contents: [{
-                        role: "user",
-                        parts: [
-                            ...buildPDFParts(pdfUris),
-                            { text: texto }
-                        ]
-                    }],
+                    contents: conversationHistory,
                     generationConfig: {
                         temperature: 0.2,
-                        maxOutputTokens: 2048
+                        maxOutputTokens: 4096
                     }
                 };
 
@@ -1110,16 +1117,20 @@
                     body: JSON.stringify(requestBody)
                 });
 
+                // ── Fix 3: Leer cuerpo del error para debugging ──
                 if (!response.ok) {
-                    throw new Error(`Error HTTP: ${response.status}`);
+                    const errorBody = await response.text();
+                    console.error('Detalles del error API:', errorBody);
+                    throw new Error(`Error HTTP: ${response.status} - ${errorBody || 'Error desconocido'}`);
                 }
 
                 // Ocultar indicador al recibir respuesta
                 typingIndicator.style.display = 'none';
 
-                // Procesar Stream
+                // ── Procesar Stream con buffer de líneas incompletas ──
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
+                let sseBuffer = ''; // Buffer para chunks parciales
                 
                 // Crear burbuja IA vacía
                 aiMessageElement = appendMessage('ai', '');
@@ -1129,30 +1140,41 @@
                     const { done, value } = await reader.read();
                     if (done) break;
 
-                    const chunk = decoder.decode(value, { stream: true });
-                    const lines = chunk.split('\n');
+                    // Acumular en buffer y separar por líneas completas
+                    sseBuffer += decoder.decode(value, { stream: true });
+                    const lines = sseBuffer.split('\n');
+                    sseBuffer = lines.pop(); // Última línea puede estar incompleta → queda en buffer
                     
                     for (const line of lines) {
                         if (line.startsWith('data: ')) {
                             try {
-                                const jsonStr = line.replace('data: ', '');
+                                const jsonStr = line.slice(6); // Más eficiente que replace
                                 const data = JSON.parse(jsonStr);
-                                if (data.candidates && data.candidates[0].content) {
+                                if (data.candidates && data.candidates[0]?.content) {
                                     const partText = data.candidates[0].content.parts[0].text;
                                     aiTextAccumulator += partText;
                                     bubble.innerHTML = renderMarkdown(aiTextAccumulator);
                                     scrollToBottom();
                                 }
                             } catch (e) {
-                                // Ignorar errores de parseo parcial
+                                // Chunk de JSON incompleto, se procesará en la siguiente iteración
                             }
                         }
                     }
                 }
 
+                // ── Guardar respuesta de la IA en el historial ──
+                if (aiTextAccumulator) {
+                    conversationHistory.push({ role: "model", parts: [{ text: aiTextAccumulator }] });
+                }
+
             } catch (error) {
                 console.error("Error al consultar:", error);
                 typingIndicator.style.display = 'none';
+                // Si el último turno falló, eliminarlo del historial para no corromperlo
+                if (conversationHistory.length > 0 && conversationHistory[conversationHistory.length - 1].role === 'user') {
+                    conversationHistory.pop();
+                }
                 appendMessage('ai', "Lo siento, ha ocurrido un error al procesar tu consulta. Por favor, revisa tu conexión y vuelve a intentarlo.");
             } finally {
                 chatInput.disabled = false;

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'saxun-tech-v3';
+const CACHE_NAME = 'saxun-tech-v4';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
