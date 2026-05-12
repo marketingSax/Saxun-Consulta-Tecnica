@@ -1,4 +1,16 @@
 export default async (request, context) => {
+  // CORS preflight
+  if (request.method === "OPTIONS") {
+    return new Response(null, {
+      status: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type"
+      }
+    });
+  }
+
   // Solo permitir POST
   if (request.method !== "POST") {
     return new Response("Method Not Allowed", { status: 405 });
@@ -23,11 +35,15 @@ export default async (request, context) => {
 
     // Reenviamos el stream directamente al cliente
     return new Response(response.body, {
+      status: response.status,
       headers: {
-        "Content-Type": "text/event-stream",
+        "Content-Type": response.ok ? "text/event-stream" : "application/json",
         "Cache-Control": "no-cache",
         "Connection": "keep-alive",
-        "X-Accel-Buffering": "no" // Importante para evitar buffering en proxies
+        "X-Accel-Buffering": "no", // Importante para evitar buffering en proxies
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type"
       }
     });
 
