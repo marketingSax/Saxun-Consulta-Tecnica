@@ -14,7 +14,7 @@ Aplicación web (PWA) de consulta técnica avanzada para sistemas de celosías S
 - **Tipografía:** Helvetica Neue (Bold/SemiBold).
 - **Color Primario:** `#E30613` (Rojo Corporativo Saxun).
 - **Color de Fondo:** `#F2F2F0` (Gris cálido con textura radial).
-- **UI/UX:** Sidebar de 380px para legibilidad, Logo de 80px, diseño limpio y profesional.
+- **UI/UX:** Sidebar de 380px para legibilidad, Logo adaptable, diseño limpio y profesional.
 - **Micro-interacciones:** Transiciones suaves en sidebar, efectos de glassmorphism en áreas de entrada.
 
 ## 🔐 Arquitectura de Seguridad
@@ -35,10 +35,12 @@ Aplicación web (PWA) de consulta técnica avanzada para sistemas de celosías S
 ## ✅ Hitos Completados
 - [x] **Optimización de PWA:** Implementado `manifest.json` y `service-worker.js`.
 - [x] **Lazy Loading:** Los scripts de datos se cargan dinámicamente con barra de progreso informando al usuario (Ahorro de ~50MB en carga inicial bloqueante).
-- [x] **Seguridad & Streaming:** Proxy estabilizado en Edge Functions mediante `/api/gemini-stream`, eliminando redundancias en `netlify.toml` y mejorando la detección de errores de tipo MIME.
-- [x] **UX en Tiempo Real:** Streaming con buffer SSE robusto (`lines.pop()` para chunks parciales).
-- [x] **Historial Multi-turno:** Conversación con memoria (PDFs solo en 1er mensaje, rollback en error).
-- [x] **Debug Mejorado:** Lectura del body de errores HTTP para diagnóstico real.
+- [x] **Diseño Adaptativo Multiplataforma:** Implementación de media queries exhaustivas para asegurar el funcionamiento óptimo en móviles, tablets y escritorio.
+- [x] **Optimización Táctil:** Mejora de elementos interactivos y soporte para scroll horizontal en tablas técnicas dentro de los chats.
+- [x] **Early Response SSE:** Pings constantes (cada 5s) para evitar timeouts 504.
+- [x] **UX en Tiempo Real:** Streaming con buffer SSE robusto y renderizado Markdown dinámico.
+- [x] **Historial Multi-turno:** Conversación con memoria y gestión de contexto optimizada.
+- [x] **Refinamiento UI Premium:** Cabecera fina, logo fluido y mensaje de bienvenida personalizado.
 - [x] **SW v4:** `skipWaiting` + `clients.claim` + Network-First para HTML.
 
 ## 🚀 Próximos Pasos (Pendientes)

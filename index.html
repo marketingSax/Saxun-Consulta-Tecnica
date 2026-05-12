@@ -95,7 +95,7 @@
         }
 
         .progress-container {
-            width: 320px;
+            width: min(320px, 85vw);
             height: 6px;
             background-color: #333;
             border-radius: 999px;
@@ -158,12 +158,11 @@
         /* Header */
         header {
             background-color: #FFFFFF;
-            padding: 1.2rem 2rem;
+            padding: 0.5rem 1.25rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            border-bottom: 3px solid var(--red-saxun);
-            /* acento rojo prominente */
+            border-bottom: 2px solid var(--red-saxun);
             z-index: 10;
             flex-shrink: 0;
         }
@@ -171,7 +170,7 @@
         .header-left {
             display: flex;
             align-items: center;
-            gap: 1.25rem;
+            gap: 1rem;
         }
 
         .hamburger {
@@ -195,18 +194,16 @@
 
         .app-title span {
             color: var(--red-saxun);
-            /* texto en color de acento */
             font-weight: 800;
-            /* negrita fuerte */
-            font-size: 1rem;
+            font-size: 0.95rem;
             border-left: 2px solid var(--red-saxun);
-            padding-left: 0.85rem;
+            padding-left: 0.75rem;
             letter-spacing: 0.01em;
         }
 
         /* Logo imagen real — no deformar: solo height, width:auto */
         .app-logo {
-            height: 140px; /* Aumentado un 75% desde 80px */
+            height: clamp(50px, 10vw, 80px);
             width: auto;
             display: block;
             object-fit: contain;
@@ -247,7 +244,7 @@
             flex-direction: column;
             padding: 1.5rem 1rem;
             overflow-y: auto;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 20;
         }
 
@@ -542,7 +539,11 @@
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 1rem;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            display: block;
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
         }
 
         .ai .bubble th,
@@ -682,36 +683,51 @@
             transform: none;
         }
 
-        /* Responsive */
-        @media (max-width: 1024px) {
+        /* Responsive adjustments */
+        @media (max-width: 1200px) {
+            .chat-history, .input-area {
+                padding-left: 5%;
+                padding-right: 5%;
+            }
+        }
 
-            .chat-history,
-            .input-area {
-                padding-left: 2rem;
-                padding-right: 2rem;
+        @media (max-width: 1024px) {
+            aside {
+                width: 320px;
+            }
+            
+            .chat-history, .input-area {
+                padding-left: 1.5rem;
+                padding-right: 1.5rem;
             }
         }
 
         @media (max-width: 768px) {
+            header {
+                padding: 0.5rem 1rem;
+            }
+
             .hamburger {
                 display: flex;
+                padding: 0.5rem;
             }
 
             .app-title {
-                font-size: 1.15rem;
+                font-size: 1rem;
             }
 
             .app-title span {
                 display: none;
-                /* Hide subtitle on very small screens */
             }
 
             aside {
-                position: absolute;
+                position: fixed;
                 top: 0;
                 bottom: 0;
                 left: 0;
+                height: 100vh;
                 transform: translateX(-100%);
+                box-shadow: 5px 0 25px rgba(0,0,0,0.1);
             }
 
             aside.open {
@@ -720,30 +736,57 @@
 
             .sidebar-overlay {
                 display: none;
-                position: absolute;
+                position: fixed;
                 inset: 0;
                 background: rgba(0, 0, 0, 0.4);
                 z-index: 15;
                 backdrop-filter: blur(2px);
+                -webkit-backdrop-filter: blur(2px);
             }
 
             .sidebar-overlay.open {
                 display: block;
             }
 
-            .chat-history,
+            .chat-history {
+                padding: 1.5rem 1rem;
+            }
+
             .input-area {
-                padding-left: 1rem;
-                padding-right: 1rem;
+                padding: 1rem;
             }
 
             .message {
-                max-width: 95%;
+                max-width: 92%;
+            }
+
+            .bubble {
+                padding: 1rem 1.25rem;
+                font-size: 0.9rem;
             }
 
             .input-container {
-                border-radius: 24px;
+                padding: 0.4rem;
+                border-radius: 20px;
             }
+
+            .chat-input {
+                padding: 0.6rem 0.8rem;
+                font-size: 0.95rem;
+            }
+
+            .send-btn {
+                padding: 0 1rem;
+                font-size: 0.9rem;
+                height: 40px;
+            }
+        }
+
+        /* Landscape and small devices height fix */
+        @media (max-height: 500px) {
+            header { padding: 0.25rem 1rem; }
+            .app-logo { height: 40px; }
+            .chat-history { padding-top: 0.5rem; }
         }
     </style>
 </head>
@@ -852,8 +895,7 @@
                     <!-- Mensaje inicial de la IA -->
                     <div class="message ai">
                         <div class="bubble">
-                            <p>¡Hola! Soy el asistente técnico de Saxun. He cargado correctamente los catálogos de 2024
-                                y 2026, así como el dossier técnico.</p>
+                            <p>¡Hola! Soy el asistente técnico de Celosias de Saxun.</p>
                             <p>¿En qué puedo ayudarte hoy?</p>
                         </div>
                     </div>

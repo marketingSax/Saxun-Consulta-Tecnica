@@ -16,32 +16,20 @@ export default async (request, context) => {
   }
 
   try {
-    // En Edge Functions se usa Deno.env para acceder a las variables de entorno
-    const API_KEY = Deno.env.get("GEMINI_API_KEY");
+    const API_KEY = process.env.GEMINI_API_KEY;
     if (!API_KEY) {
       return new Response(JSON.stringify({ error: "API Key no configurada en Netlify" }), { status: 500 });
     }
 
     const body = await request.json();
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:streamGenerateContent?alt=sse&key=${API_KEY}`;
-    
+
     // Usamos un ReadableStream para responder inmediatamente al cliente y evitar timeouts de inactividad
     const stream = new ReadableStream({
       async start(controller) {
         const encoder = new TextEncoder();
-        
-        // Intervalo para enviar pings cada 5 segundos y mantener la conexión activa
-        // mientras Google procesa los PDFs (que puede tardar > 30s)
-        const pingInterval = setInterval(() => {
-          try {
-            controller.enqueue(encoder.encode(": ping\n\n"));
-          } catch (e) {
-            // Si el controlador está cerrado, el intervalo se limpiará en el catch/finally
-          }
-        }, 5000);
-
         try {
-          // Enviar ping inicial inmediato
+          // Enviamos un comentario SSE inmediato para mantener la conexión activa
           controller.enqueue(encoder.encode(": ping\n\n"));
 
           const response = await fetch(url, {
@@ -49,9 +37,6 @@ export default async (request, context) => {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body)
           });
-
-          // Limpiar el intervalo una vez recibimos respuesta del API
-          clearInterval(pingInterval);
 
           if (!response.ok) {
             const errorText = await response.text();
@@ -68,7 +53,6 @@ export default async (request, context) => {
           }
           controller.close();
         } catch (error) {
-          clearInterval(pingInterval);
           console.error("Error en el stream de la función:", error);
           controller.enqueue(encoder.encode(`data: {"error": "Error interno: ${error.message}"}\n\n`));
           controller.close();
@@ -81,7 +65,7 @@ export default async (request, context) => {
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
         "Connection": "keep-alive",
-        "X-Accel-Buffering": "no",
+        "X-Accel-Buffering": "no", // Crucial para desactivar buffering en proxies
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type"
