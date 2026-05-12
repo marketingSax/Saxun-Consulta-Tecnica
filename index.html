@@ -159,13 +159,14 @@
         /* Header */
         header {
             background-color: #FFFFFF;
-            padding: 0.5rem 1.25rem;
+            padding: 0 1.25rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
             border-bottom: 2px solid var(--red-saxun);
             z-index: 10;
             flex-shrink: 0;
+            height: 55px; /* Altura fija para mantenerla fina */
         }
 
         .header-left {
@@ -204,10 +205,14 @@
 
         /* Logo imagen real — no deformar: solo height, width:auto */
         .app-logo {
-            height: clamp(40px, 8vh, 65px);
+            height: clamp(70px, 12vh, 105px); /* Aumentado un 75% aprox */
             width: auto;
             display: block;
             object-fit: contain;
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.05));
+            position: relative;
+            z-index: 20;
         }
 
         /* Loading screen: logo invertido sobre fondo oscuro */
