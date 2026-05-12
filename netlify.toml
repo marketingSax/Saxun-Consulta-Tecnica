@@ -2,11 +2,7 @@
   directory = "netlify/functions"
   node_bundler = "esbuild"
 
-[[edge_functions]]
-  function = "gemini-stream"
-  path = "/.netlify/edge-functions/gemini-stream"
-
-# Excluir rutas /.netlify/ del redirect SPA (DEBE ir ANTES del catch-all)
+# Excluir rutas /.netlify/ del redirect SPA
 [[redirects]]
   from = "/.netlify/*"
   to = "/.netlify/:splat"
