@@ -23,8 +23,8 @@ export default async (request, context) => {
 
     const body = await request.json();
     
-    // Usamos gemini-1.5-flash que es el ID estable y rápido
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:streamGenerateContent?alt=sse&key=${API_KEY}`;
+    // Usamos gemini-flash-latest como identificador del modelo
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:streamGenerateContent?alt=sse&key=${API_KEY}`;
     
     const response = await fetch(url, {
       method: "POST",
