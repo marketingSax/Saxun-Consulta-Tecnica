@@ -16,7 +16,8 @@ export default async (request, context) => {
   }
 
   try {
-    const API_KEY = process.env.GEMINI_API_KEY;
+    // En Edge Functions se usa Netlify.env o Deno.env
+    const API_KEY = Netlify.env.get("GEMINI_API_KEY");
     if (!API_KEY) {
       return new Response(JSON.stringify({ error: "API Key no configurada en Netlify" }), { status: 500 });
     }
@@ -65,7 +66,7 @@ export default async (request, context) => {
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
         "Connection": "keep-alive",
-        "X-Accel-Buffering": "no", // Crucial para desactivar buffering en proxies
+        "X-Accel-Buffering": "no",
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type"

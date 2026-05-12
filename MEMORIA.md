@@ -7,7 +7,7 @@ Aplicación web (PWA) de consulta técnica avanzada para sistemas de celosías S
 - **Frontend:** Vanilla HTML5, CSS3 (Custom Variables), JavaScript (ES6+).
 - **IA:** Google Gemini API (Modelo: `gemini-flash-latest`).
 - **Despliegue:** GitHub + Netlify (CI/CD).
-- **Seguridad:** Netlify Functions estándar (streaming SSE) para permitir timeout extendido (26s).
+- **Seguridad:** Netlify Edge Functions (streaming SSE) en path /api/ para evitar namespaces reservados.
 - **PWA:** Service Workers (Network-First HTML, Cache-First assets), Manifest para instalabilidad.
 
 ## 🎨 Identidad Visual (Branding)
@@ -19,7 +19,7 @@ Aplicación web (PWA) de consulta técnica avanzada para sistemas de celosías S
 
 ## 🔐 Arquitectura de Seguridad
 1. **Protección de API KEY:** Gestionada mediante variables de entorno en Netlify.
-2. **Proxy de Chat:** Netlify Function `gemini-stream.js` con streaming SSE y timeout de 26s.
+2. **Proxy de Chat:** Edge Function `gemini-stream.js` mapeada a `/api/gemini-stream`.
 3. **Key Retrieval:** Sistema de llave temporal para subida directa de archivos pesados.
 
 ## 📁 Estructura de Archivos Críticos
@@ -28,14 +28,14 @@ Aplicación web (PWA) de consulta técnica avanzada para sistemas de celosías S
 - `manifest.json`: Configuración de la App instalable.
 - `data_index.js`: Lógica de gestión de PDFs, caché local (47h) y System Prompt.
 - `data_pdf[1-3].js`: Base de datos de catálogos técnicos en Base64.
-- `netlify/functions/gemini-stream.js`: Proxy streaming SSE hacia Gemini (Estándar para >10s timeout).
+- `netlify/edge-functions/gemini-stream.js`: Proxy streaming SSE (Mapeado a /api/gemini-stream).
 - `netlify/functions/get-key.js`: Devuelve API key temporal para subida de PDFs.
 - `netlify.toml`: Configuración de rutas Edge Functions + Functions + redirects.
 
 ## ✅ Hitos Completados
 - [x] **Optimización de PWA:** Implementado `manifest.json` y `service-worker.js`.
 - [x] **Lazy Loading:** Los scripts de datos se cargan dinámicamente con barra de progreso informando al usuario (Ahorro de ~50MB en carga inicial bloqueante).
-- [x] **Seguridad & Streaming:** Proxy migrado a Netlify Functions estándar (SSE) aumentando timeout a 26s para procesar PDFs pesados.
+- [x] **Seguridad & Streaming:** Proxy migrado a Edge Functions bajo el path `/api/` para evitar conflictos de Netlify y asegurar streaming estable.
 - [x] **UX en Tiempo Real:** Streaming con buffer SSE robusto (`lines.pop()` para chunks parciales).
 - [x] **Historial Multi-turno:** Conversación con memoria (PDFs solo en 1er mensaje, rollback en error).
 - [x] **Debug Mejorado:** Lectura del body de errores HTTP para diagnóstico real.
