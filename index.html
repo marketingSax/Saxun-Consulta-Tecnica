@@ -7,7 +7,7 @@
     <title>Consulta Técnica Celosías - Saxun</title>
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#E30613">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Saxun">
     <link rel="apple-touch-icon" href="logo.png">
@@ -1055,6 +1055,7 @@
             msgDiv.appendChild(bubbleDiv);
             chatHistory.insertBefore(msgDiv, typingIndicator);
             scrollToBottom();
+            return msgDiv;
         }
 
         function scrollToBottom() {
@@ -1081,6 +1082,9 @@
             typingIndicator.style.display = 'flex';
             scrollToBottom();
 
+            let aiTextAccumulator = "";
+            let aiMessageElement = null;
+
             try {
                 // Preparar payload usando funciones de data_index.js
                 const requestBody = {
@@ -1102,33 +1106,55 @@
 
                 const response = await fetch(API_URL, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(requestBody)
                 });
 
                 if (!response.ok) {
-                    const errorDetails = await response.json().catch(() => ({}));
-                    console.error("Detalles del error API:", errorDetails);
-                    throw new Error(`Error HTTP: ${response.status} - ${errorDetails.error?.message || 'Error desconocido'}`);
+                    throw new Error(`Error HTTP: ${response.status}`);
                 }
 
-                const data = await response.json();
+                // Ocultar indicador al recibir respuesta
+                typingIndicator.style.display = 'none';
 
-                if (data.candidates && data.candidates.length > 0 && data.candidates[0].content) {
-                    const aiText = data.candidates[0].content.parts.map(p => p.text).join('\n');
-                    appendMessage('ai', aiText);
-                } else {
-                    throw new Error("Respuesta inválida de la IA.");
+                // Procesar Stream
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                
+                // Crear burbuja IA vacía
+                aiMessageElement = appendMessage('ai', '');
+                const bubble = aiMessageElement.querySelector('.bubble');
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    const chunk = decoder.decode(value, { stream: true });
+                    const lines = chunk.split('\n');
+                    
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const jsonStr = line.replace('data: ', '');
+                                const data = JSON.parse(jsonStr);
+                                if (data.candidates && data.candidates[0].content) {
+                                    const partText = data.candidates[0].content.parts[0].text;
+                                    aiTextAccumulator += partText;
+                                    bubble.innerHTML = renderMarkdown(aiTextAccumulator);
+                                    scrollToBottom();
+                                }
+                            } catch (e) {
+                                // Ignorar errores de parseo parcial
+                            }
+                        }
+                    }
                 }
 
             } catch (error) {
                 console.error("Error al consultar:", error);
+                typingIndicator.style.display = 'none';
                 appendMessage('ai', "Lo siento, ha ocurrido un error al procesar tu consulta. Por favor, revisa tu conexión y vuelve a intentarlo.");
             } finally {
-                // Ocultar typing indicator y desbloquear
-                typingIndicator.style.display = 'none';
                 chatInput.disabled = false;
                 sendBtn.disabled = false;
                 chatInput.focus();

@@ -1,8 +1,10 @@
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
-  # Intentamos aumentar el timeout al máximo permitido para funciones síncronas
-  timeout = 26
+
+[[edge_functions]]
+  function = "gemini-stream"
+  path = "/.netlify/functions/gemini-proxy"
 
 [[redirects]]
   from = "/*"

@@ -32,7 +32,8 @@ Aplicación web (PWA) de consulta técnica avanzada para sistemas de celosías S
 ## ✅ Hitos Completados
 - [x] **Optimización de PWA:** Implementado `manifest.json` y `service-worker.js`.
 - [x] **Lazy Loading:** Los scripts de datos se cargan dinámicamente con barra de progreso informando al usuario (Ahorro de ~50MB en carga inicial bloqueante).
-- [x] **Seguridad:** Proxy de API Gemini verificado y operativo.
+- [x] **Seguridad & Streaming:** Proxy de API Gemini migrado a Edge Functions para soportar respuestas en tiempo real (SSE) y eliminar errores de timeout (504).
+- [x] **UX en Tiempo Real:** Lógica de streaming en frontend operativa.
 
 ## 🚀 Próximos Pasos (Pendientes)
 - [ ] **Refactorización a Next.js:** Evaluación de migración para mayor escalabilidad.
