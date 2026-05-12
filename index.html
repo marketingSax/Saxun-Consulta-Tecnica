@@ -46,7 +46,8 @@
             background-color: var(--bg-main);
             color: var(--text-dark);
             height: 100vh;
-            height: 100dvh; /* Dynamic Viewport Height para móviles */
+            height: 100dvh;
+            /* Dynamic Viewport Height para móviles */
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -166,7 +167,8 @@
             border-bottom: 2.5px solid var(--red-saxun);
             z-index: 10;
             flex-shrink: 0;
-            height: 65px; /* Altura equilibrada */
+            height: 65px;
+            /* Altura equilibrada */
         }
 
         .header-left {
@@ -205,7 +207,8 @@
         }
 
         .app-logo {
-            height: 52px; /* Tamaño visualmente grande pero integrado */
+            height: 52px;
+            /* Tamaño visualmente grande pero integrado */
             width: auto;
             display: block;
             object-fit: contain;
@@ -441,8 +444,10 @@
 
         /* Patrón sutil en el área de chat para no ser tan plana */
         .chat-history {
-            background-image: radial-gradient(circle, #D8D8D4 1.25px, transparent 1.25px); /* Puntos un 25% más grandes */
-            background-size: 30px 30px; /* Espaciado proporcional */
+            background-image: radial-gradient(circle, #D8D8D4 1.25px, transparent 1.25px);
+            /* Puntos un 25% más grandes */
+            background-size: 30px 30px;
+            /* Espaciado proporcional */
         }
 
         .chat-history {
@@ -456,7 +461,7 @@
         }
 
         /* Contenedor interno para centrar el chat con max-width */
-        .chat-history > * {
+        .chat-history>* {
             width: 100%;
             max-width: 900px;
             margin-left: auto;
@@ -610,8 +615,18 @@
         }
 
         @keyframes blink {
-            0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
-            40% { transform: scale(1); opacity: 1; }
+
+            0%,
+            80%,
+            100% {
+                transform: scale(0.6);
+                opacity: 0.4;
+            }
+
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
 
         /* Animación de carga dentro de la burbuja */
@@ -632,19 +647,47 @@
             margin: 0;
         }
 
-        .bubble.loading .dot:nth-child(1) { animation-delay: -0.32s; }
-        .bubble.loading .dot:nth-child(2) { animation-delay: -0.16s; }
+        .bubble.loading .dot:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .bubble.loading .dot:nth-child(2) {
+            animation-delay: -0.16s;
+        }
 
         @keyframes bubbleDot {
-            0%, 80%, 100% { transform: scale(0); opacity: 0.3; }
-            40% { transform: scale(1); opacity: 1; }
+
+            0%,
+            80%,
+            100% {
+                transform: scale(0);
+                opacity: 0.3;
+            }
+
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
 
         /* Scrollbar styling */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #9CA3AF; }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #D1D5DB;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9CA3AF;
+        }
 
         /* Input Area */
         .input-area {
@@ -743,10 +786,11 @@
                 top: 0;
                 bottom: 0;
                 left: 0;
-                width: 280px; /* Tamaño más cómodo para móviles */
+                width: 280px;
+                /* Tamaño más cómodo para móviles */
                 height: 100dvh;
                 transform: translateX(-100%);
-                box-shadow: 10px 0 30px rgba(0,0,0,0.15);
+                box-shadow: 10px 0 30px rgba(0, 0, 0, 0.15);
                 border-right: none;
             }
 
@@ -766,8 +810,13 @@
             }
 
             @keyframes fadeInOverlay {
-                from { opacity: 0; }
-                to { opacity: 1; }
+                from {
+                    opacity: 0;
+                }
+
+                to {
+                    opacity: 1;
+                }
             }
 
             .sidebar-overlay.open {
@@ -799,7 +848,8 @@
 
             .chat-input {
                 padding: 0.5rem 0.75rem;
-                font-size: 16px; /* Evita zoom automático en iOS */
+                font-size: 16px;
+                /* Evita zoom automático en iOS */
             }
 
             .send-btn {
@@ -811,16 +861,32 @@
 
         /* Ajustes para tablets */
         @media (min-width: 769px) and (max-width: 1024px) {
-            aside { width: 300px; }
-            .chat-history { padding: 1.5rem; }
+            aside {
+                width: 300px;
+            }
+
+            .chat-history {
+                padding: 1.5rem;
+            }
         }
 
         /* Orientación horizontal en móviles */
         @media (max-height: 500px) and (orientation: landscape) {
-            header { padding: 0.4rem 1rem; }
-            .app-logo { height: 35px; }
-            .sidebar-section { margin-bottom: 1rem; }
-            .chat-history { gap: 1rem; }
+            header {
+                padding: 0.4rem 1rem;
+            }
+
+            .app-logo {
+                height: 35px;
+            }
+
+            .sidebar-section {
+                margin-bottom: 1rem;
+            }
+
+            .chat-history {
+                gap: 1rem;
+            }
         }
     </style>
 </head>
@@ -859,9 +925,6 @@
             <aside id="sidebar">
                 <div class="sidebar-section">
                     <div class="sidebar-title">Accesos Rápidos</div>
-                    <button class="doc-btn" onclick="insertarTexto('Basándote en el Catálogo 2024, ')">
-                        <span><i data-lucide="book-open"></i> Catálogo 2024</span>
-                    </button>
                     <button class="doc-btn" onclick="insertarTexto('Basándote en el Catálogo 2026, ')">
                         <span><i data-lucide="book-open"></i> Catálogo 2026</span>
                         <span class="badge-new">NUEVO</span>
@@ -1053,9 +1116,9 @@
 
             try {
                 // FASE 1: Carga de archivos de datos (Lazy Loading)
-                const dataFiles = ['data_pdf1.js', 'data_pdf2.js', 'data_pdf3.js', 'data_index.js'];
+                const dataFiles = ['data_pdf2.js', 'data_pdf3.js', 'data_index.js'];
                 const totalFiles = dataFiles.length;
-                
+
                 for (let i = 0; i < totalFiles; i++) {
                     loadingText.textContent = `Descargando catálogos técnicos... (${i + 1}/${totalFiles})`;
                     await loadScript(dataFiles[i]);
@@ -1065,7 +1128,7 @@
 
                 // FASE 2: Preparación de la API
                 loadingText.textContent = "Conectando con el motor de inteligencia técnica...";
-                
+
                 // Obtener la API KEY de forma segura para la subida inicial
                 const keyResponse = await fetch('/.netlify/functions/get-key');
                 const { key } = await keyResponse.json();
@@ -1213,7 +1276,7 @@
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
                 let sseBuffer = ''; // Buffer para chunks parciales
-                
+
                 // Crear burbuja IA vacía con animación de carga inicial
                 aiMessageElement = appendMessage('ai', '');
                 const bubble = aiMessageElement.querySelector('.bubble');
@@ -1228,7 +1291,7 @@
                     sseBuffer += decoder.decode(value, { stream: true });
                     const lines = sseBuffer.split('\n');
                     sseBuffer = lines.pop(); // Última línea puede estar incompleta → queda en buffer
-                    
+
                     for (const line of lines) {
                         if (line.startsWith('data: ')) {
                             try {
@@ -1236,7 +1299,7 @@
                                 const data = JSON.parse(jsonStr);
                                 if (data.candidates && data.candidates[0]?.content) {
                                     const partText = data.candidates[0].content.parts[0].text;
-                                    
+
                                     // Si es el primer fragmento de texto, eliminamos la animación de carga
                                     if (aiTextAccumulator === "") {
                                         bubble.classList.remove('loading');

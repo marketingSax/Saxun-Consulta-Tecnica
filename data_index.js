@@ -4,7 +4,6 @@
 // ============================================================
 // INSTRUCCIONES DE USO EN LA APP:
 // 1. Incluir en el HTML (en orden):
-//    <script src="data_pdf1.js"></script>
 //    <script src="data_pdf2.js"></script>
 //    <script src="data_pdf3.js"></script>
 //    <script src="data_index.js"></script>
@@ -14,7 +13,6 @@
 // ============================================================
 
 const PDF_DATA = [
-  PDF_CATALOGO_2024,   // Catálogo 2024 - modelos, lamas, sistemas
   PDF_CATALOGO_2026,   // Catálogo 2026 - novedades, nuevos modelos
   PDF_DOSSIER_TECNICO  // Dossier técnico - especificaciones detalladas
 ];
