@@ -33,6 +33,9 @@ export const ChatBox = () => {
     setMessages(prev => [...prev, { role: "user", content: userMsg }]);
     setIsLoading(true);
 
+    // Añadimos un mensaje vacío para el asistente que iremos rellenando
+    setMessages(prev => [...prev, { role: "assistant", content: "" }]);
+
     try {
       const response = await fetch("/api/assistant", {
         method: "POST",
@@ -40,10 +43,39 @@ export const ChatBox = () => {
         body: JSON.stringify({ query: userMsg }),
       });
 
-      const data = await response.json();
-      setMessages(prev => [...prev, { role: "assistant", content: data.answer }]);
+      if (!response.body) throw new Error("No response body");
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let assistantContent = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        assistantContent += chunk;
+
+        // Actualizamos solo el último mensaje (el del asistente)
+        setMessages(prev => {
+          const newMessages = [...prev];
+          newMessages[newMessages.length - 1] = {
+            role: "assistant",
+            content: assistantContent
+          };
+          return newMessages;
+        });
+      }
     } catch (error) {
-      setMessages(prev => [...prev, { role: "assistant", content: "Lo siento, ha ocurrido un error al procesar tu consulta. Por favor, inténtalo de nuevo." }]);
+      console.error("Error en el chat:", error);
+      setMessages(prev => {
+        const newMessages = [...prev];
+        newMessages[newMessages.length - 1] = {
+          role: "assistant",
+          content: "Lo siento, ha ocurrido un error al procesar tu consulta. Por favor, inténtalo de nuevo."
+        };
+        return newMessages;
+      });
     } finally {
       setIsLoading(false);
     }

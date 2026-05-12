@@ -32,20 +32,32 @@
   body {
     @apply bg-brand-bg text-white antialiased;
     font-feature-settings: "ss01", "ss02", "cv01", "cv02";
+    min-height: 100dvh;
   }
 }
 
-@layer utilities {
-  .glass {
-    @apply bg-white/5 backdrop-blur-xl border border-white/10;
-  }
-  
-  .text-vibrant {
-    @apply bg-gradient-to-r from-white via-white to-brand-primary bg-clip-text text-transparent;
-  }
-  
-  .btn-vibrant {
-    @apply relative overflow-hidden bg-brand-primary px-6 py-3 font-bold uppercase tracking-wider text-white transition-all hover:scale-105 active:scale-95;
-  }
+/* Custom Scrollbar Premium */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-brand-primary/40 rounded-full transition-colors hover:bg-brand-primary;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }
 

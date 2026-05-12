@@ -34,6 +34,12 @@
 - **Sistemas:** Detalles de anclaje (testeros, pinzas) y accionamientos (Motores 24V, Manual).
 - **Otros Datos:** Aleaciones de aluminio (6060/6063 T5), acabados Qualicoat/Qualimarine y normativa UNE-EN 13659:2016.
 
-## 6. Historial de Git
-- **Repo:** `https://github.com/marketingSax/Dossier_celosias.git` (Rama `main`).
-- **Commits:** Incluye refactorización de seguridad, optimización espacial de UI y configuración final del modelo.
+## 7. Estado Actual & Bloqueos (12 Mayo 2026)
+- **Servidor Local:** 🟢 Activo en `http://localhost:3000`.
+- **API Gemini:** 🔴 Error de autenticación (`API_KEY_INVALID`). La clave en `.env.local` debe ser renovada.
+- **Git:** Sincronización pendiente de resolución del error de API.
+
+### 🚀 Próximos Pasos Inmediatos
+1. Sustituir `GEMINI_API_KEY` por una válida.
+2. Realizar `git push` al repositorio oficial.
+3. Finalizar optimización de PWA para modo offline.

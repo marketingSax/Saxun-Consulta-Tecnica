@@ -1,43 +1,62 @@
-import { NextResponse } from "next/server";
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { fullDossierContext } from "@/data/dossier-context-full";
 
 // API key gestionada mediante variables de entorno
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 export async function POST(req: Request) {
   try {
     const { query } = await req.json();
 
     if (!query) {
-      return NextResponse.json({ error: "Query is required" }, { status: 400 });
+      return new Response(JSON.stringify({ error: "Query is required" }), { status: 400 });
     }
+
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `
 Eres el asistente técnico oficial de Saxun, experto en celosías y protección solar.
-A continuación te proporciono el texto íntegro y exhaustivo de todos los manuales y catálogos de celosías Saxun.
-Utiliza ÚNICAMENTE esta información para responder a la pregunta del usuario con todo lujo de detalles técnicos (medidas, acabados, tolerancias, etc.) cuando se solicite.
-Si la respuesta no está en el contexto, indica amablemente que no dispones de esa información en el dossier actual.
-Sé profesional, preciso y detallado.
+Utiliza ÚNICAMENTE la información proporcionada en el CONTEXTO DEL DOSSIER para responder.
+Si la respuesta no está en el contexto, indica amablemente que no dispones de esa información.
+Sé profesional, preciso y utiliza formato Markdown (tablas, negritas, listas) para mejorar la legibilidad técnica.
 
-CONTEXTO DEL DOSSIER (MANUALES COMPLETOS):
+CONTEXTO DEL DOSSIER:
 ${fullDossierContext}
 
 PREGUNTA DEL USUARIO:
 ${query}
 `;
 
+    const result = await model.generateContentStream(prompt);
 
-    const response = await ai.getGenerativeModel({
-      model: "gemini-flash-latest",
-    }).generateContent(prompt);
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const chunk of result.stream) {
+            const text = chunk.text();
+            if (text) {
+              controller.enqueue(encoder.encode(text));
+            }
+          }
+        } catch (err) {
+          console.error("Error en el stream:", err);
+        } finally {
+          controller.close();
+        }
+      },
+    });
 
-    const answer = response.response.text() || "Lo siento, no he podido generar una respuesta.";
-
-    return NextResponse.json({ answer });
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Transfer-Encoding": "chunked",
+      },
+    });
   } catch (error) {
-    console.error("Error generating content:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    console.error("Error en streaming de Gemini:", error);
+    return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500 });
   }
 }
+
 
