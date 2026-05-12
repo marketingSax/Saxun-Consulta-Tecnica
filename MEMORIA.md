@@ -35,10 +35,10 @@ Aplicación web (PWA) de consulta técnica avanzada para sistemas de celosías S
 ## ✅ Hitos Completados
 - [x] **Optimización de PWA:** Implementado `manifest.json` y `service-worker.js`.
 - [x] **Lazy Loading:** Los scripts de datos se cargan dinámicamente con barra de progreso informando al usuario (Ahorro de ~50MB en carga inicial bloqueante).
-- [x] **Diseño Adaptativo Multiplataforma:** Implementación de media queries exhaustivas para asegurar el funcionamiento óptimo en móviles, tablets y escritorio.
-- [x] **Optimización Táctil:** Mejora de elementos interactivos y soporte para scroll horizontal en tablas técnicas dentro de los chats.
-- [x] **Early Response SSE:** Pings constantes (cada 5s) para evitar timeouts 504.
-- [x] **UX en Tiempo Real:** Streaming con buffer SSE robusto y renderizado Markdown dinámico.
+- [x] **Diseño Adaptativo Multiplataforma:** Implementación de media queries exhaustivas y uso de `dvh` (Dynamic Viewport Height) para corregir problemas de visualización en navegadores móviles (Safari/Chrome iOS/Android).
+- [x] **Optimización de Layout:** Uso de `max-width` en el área de chat para asegurar legibilidad en pantallas grandes y centrado dinámico del área de input.
+- [x] **Refinamiento Táctil Premium:** Ajuste de hitboxes, prevención de zoom automático en iOS (font-size 16px en inputs) y eliminación de resaltado táctil predeterminado.
+- [x] **Visualización de Datos:** Soporte mejorado para tablas técnicas con scroll horizontal suave y scrollbars personalizados de estilo minimalista.
 - [x] **Historial Multi-turno:** Conversación con memoria y gestión de contexto optimizada.
 - [x] **Refinamiento UI Premium:** Cabecera fina, logo fluido y mensaje de bienvenida personalizado.
 - [x] **SW v4:** `skipWaiting` + `clients.claim` + Network-First para HTML.
