@@ -45,7 +45,6 @@ Aplicación web (PWA) de consulta técnica avanzada para sistemas de celosías S
 - [x] **SW v4:** `skipWaiting` + `clients.claim` + Network-First para HTML.
 - [x] **Optimización de Streaming SSE:** Reubicación de la Edge Function a la carpeta correcta y adición de lógica de "pings" para evitar timeouts durante el procesamiento de PDFs pesados.
 - [x] **Resiliencia de Proxy:** Implementado manejo de errores robusto tanto en el servidor (Edge Function) como en el cliente (Fetch SSE).
-- [x] **Auditoría de Seguridad:** Eliminación de API Key expuesta en `.env`, corrección de codificación de `.gitignore` y eliminación del seguimiento de archivos sensibles en el repositorio.
 
 ## 🚀 Próximos Pasos (Pendientes)
 - [ ] **Refactorización a Next.js:** Evaluación de migración para mayor escalabilidad.
