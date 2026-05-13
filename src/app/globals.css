@@ -1,0 +1,65 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --brand-primary: #f97316;
+  --brand-primary-rgb: 249, 115, 22;
+  --brand-secondary: #0a0a0a;
+  --brand-secondary-rgb: 10, 10, 10;
+  --brand-accent: #a3a3a3;
+  --brand-surface: #171717;
+  --brand-card: #171717;
+  --text-white: #fafafa;
+  --text-muted: #737373;
+  --border-color: #262626;
+
+  --color-brand-primary: var(--brand-primary);
+  --color-brand-secondary: var(--brand-secondary);
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-card: var(--brand-card);
+  --color-brand-surface: var(--brand-surface);
+  --color-brand-bg: var(--brand-secondary);
+  
+  --font-display: "Montserrat", sans-serif;
+}
+
+:root {
+  --background: var(--brand-secondary);
+  --foreground: var(--text-white);
+  --primary: var(--brand-primary);
+  --secondary: var(--brand-secondary);
+}
+
+@layer base {
+  body {
+    @apply bg-brand-bg text-white antialiased;
+    font-feature-settings: "ss01", "ss02", "cv01", "cv02";
+    min-height: 100dvh;
+  }
+}
+
+/* Custom Scrollbar Premium */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-brand-primary/40 rounded-full transition-colors hover:bg-brand-primary;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
