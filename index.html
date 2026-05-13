@@ -30,7 +30,6 @@
             --text-light: #6B7280;
             --bubble-user: #E30613;
             --bubble-ai: #E0E0E0;
-            /* Helvetica Neue como tipografía principal — bold y limpia */
             --font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
         }
 
@@ -47,7 +46,6 @@
             color: var(--text-dark);
             height: 100vh;
             height: 100dvh;
-            /* Dynamic Viewport Height para móviles */
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -87,12 +85,10 @@
             font-weight: 300;
         }
 
-        /* El logo saxun es negro → invertirlo para la pantalla de carga oscura */
         .loading-logo img {
             height: 56px;
             width: auto;
             margin-bottom: 0;
-            /* Invertir el negro a blanco sobre fondo oscuro */
             filter: invert(1) brightness(2);
         }
 
@@ -168,7 +164,6 @@
             z-index: 10;
             flex-shrink: 0;
             height: 65px;
-            /* Altura equilibrada */
         }
 
         .header-left {
@@ -208,14 +203,12 @@
 
         .app-logo {
             height: 52px;
-            /* Tamaño visualmente grande pero integrado */
             width: auto;
             display: block;
             object-fit: contain;
             transition: all 0.3s ease;
         }
 
-        /* Loading screen: logo invertido sobre fondo oscuro */
         .loading-logo img {
             height: 50px;
             width: auto;
@@ -262,13 +255,11 @@
             font-size: 0.68rem;
             text-transform: uppercase;
             color: var(--red-saxun);
-            /* acento rojo en las cabeceras de sección */
             font-weight: 700;
             margin-bottom: 0.85rem;
             letter-spacing: 0.1em;
         }
 
-        /* doc-btn: accesos a documentos */
         .doc-btn {
             display: flex;
             align-items: center;
@@ -278,7 +269,6 @@
             background-color: #FFFFFF;
             border: 1px solid #E2E2DF;
             border-left: 3px solid var(--red-saxun);
-            /* acento rojo izquierda */
             border-radius: 6px;
             margin-bottom: 0.5rem;
             cursor: pointer;
@@ -309,8 +299,6 @@
             flex: 1;
         }
 
-        /* sugg-item: wrapper flex para [btn-texto] + [btn-eliminar] */
-        /* IMPORTANTE: no anidar <button> dentro de <button> — inválido en HTML */
         .sugg-item {
             display: flex;
             align-items: center;
@@ -335,7 +323,6 @@
             font-family: var(--font-family);
             gap: 0.5rem;
             overflow: hidden;
-            /* para truncar texto */
         }
 
         .sugg-btn:hover {
@@ -358,7 +345,6 @@
             white-space: nowrap;
         }
 
-        /* Botón × eliminar — HERMANO del sugg-btn, no hijo */
         .delete-query-btn {
             background: none;
             border: none;
@@ -442,12 +428,9 @@
             position: relative;
         }
 
-        /* Patrón sutil en el área de chat para no ser tan plana */
         .chat-history {
             background-image: radial-gradient(circle, #D8D8D4 1.25px, transparent 1.25px);
-            /* Puntos un 25% más grandes */
             background-size: 30px 30px;
-            /* Espaciado proporcional */
         }
 
         .chat-history {
@@ -460,7 +443,6 @@
             scroll-behavior: smooth;
         }
 
-        /* Contenedor interno para centrar el chat con max-width */
         .chat-history>* {
             width: 100%;
             max-width: 900px;
@@ -629,7 +611,6 @@
             }
         }
 
-        /* Animación de carga dentro de la burbuja */
         .bubble.loading {
             display: flex;
             align-items: center;
@@ -670,7 +651,7 @@
             }
         }
 
-        /* Scrollbar styling */
+        /* Scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -766,7 +747,7 @@
             transform: none;
         }
 
-        /* Responsive adjustments */
+        /* Responsive */
         @media (max-width: 768px) {
             header {
                 padding: 0.75rem 1rem;
@@ -787,7 +768,6 @@
                 bottom: 0;
                 left: 0;
                 width: 280px;
-                /* Tamaño más cómodo para móviles */
                 height: 100dvh;
                 transform: translateX(-100%);
                 box-shadow: 10px 0 30px rgba(0, 0, 0, 0.15);
@@ -859,7 +839,6 @@
             }
         }
 
-        /* Ajustes para tablets */
         @media (min-width: 769px) and (max-width: 1024px) {
             aside {
                 width: 300px;
@@ -870,7 +849,6 @@
             }
         }
 
-        /* Orientación horizontal en móviles */
         @media (max-height: 500px) and (orientation: landscape) {
             header {
                 padding: 0.4rem 1rem;
@@ -896,7 +874,6 @@
     <!-- Pantalla de Carga -->
     <div id="loading-screen">
         <div class="loading-logo">
-            <!-- Logo real: se invierte a blanco sobre fondo oscuro con CSS filter -->
             <img src="logo.png" alt="Saxun">
         </div>
         <div class="progress-container">
@@ -911,13 +888,14 @@
     <div id="app-container" class="hidden">
         <header>
             <div class="header-left">
-                <button class="hamburger" id="hamburger-btn" aria-label="Abrir menú"><i data-lucide="menu"></i></button>
+                <button class="hamburger" id="hamburger-btn" aria-label="Abrir menú">
+                    <i data-lucide="menu"></i>
+                </button>
                 <div class="app-title">
                     <img src="logo.png" alt="Saxun" class="app-logo">
                     <span>Consulta Técnica Celosías</span>
                 </div>
             </div>
-
         </header>
 
         <div class="content-area">
@@ -944,44 +922,52 @@
                         </button>
                     </div>
                     <div id="consultas-container">
-                        <!-- ESTRUCTURA CORRECTA: div.sugg-item > button.sugg-btn + button.delete-query-btn -->
-                        <!-- Los <button> no pueden anidarse en HTML —> usamos div wrapper -->
                         <div class="sugg-item">
-                            <button class="sugg-btn" onclick="enviarConsultaRápida('¿Qué lamas móviles existen?')"><i
-                                    data-lucide="chevron-right"></i><span class="query-text">¿Qué lamas móviles
-                                    existen?</span></button>
-                            <button class="delete-query-btn" onclick="eliminarConsulta(this)" title="Eliminar"><i
-                                    data-lucide="x"></i></button>
+                            <button class="sugg-btn" onclick="enviarConsultaRápida('¿Qué lamas móviles existen?')">
+                                <i data-lucide="chevron-right"></i>
+                                <span class="query-text">¿Qué lamas móviles existen?</span>
+                            </button>
+                            <button class="delete-query-btn" onclick="eliminarConsulta(this)" title="Eliminar">
+                                <i data-lucide="x"></i>
+                            </button>
                         </div>
                         <div class="sugg-item">
-                            <button class="sugg-btn" onclick="enviarConsultaRápida('Dimensiones de la lama O-300')"><i
-                                    data-lucide="chevron-right"></i><span class="query-text">Dimensiones de la lama
-                                    O-300</span></button>
-                            <button class="delete-query-btn" onclick="eliminarConsulta(this)" title="Eliminar"><i
-                                    data-lucide="x"></i></button>
-                        </div>
-                        <div class="sugg-item">
-                            <button class="sugg-btn"
-                                onclick="enviarConsultaRápida('Diferencias entre catálogo 2024 y 2026')"><i
-                                    data-lucide="chevron-right"></i><span class="query-text">Diferencias entre
-                                    catálogos</span></button>
-                            <button class="delete-query-btn" onclick="eliminarConsulta(this)" title="Eliminar"><i
-                                    data-lucide="x"></i></button>
+                            <button class="sugg-btn" onclick="enviarConsultaRápida('Dimensiones de la lama O-300')">
+                                <i data-lucide="chevron-right"></i>
+                                <span class="query-text">Dimensiones de la lama O-300</span>
+                            </button>
+                            <button class="delete-query-btn" onclick="eliminarConsulta(this)" title="Eliminar">
+                                <i data-lucide="x"></i>
+                            </button>
                         </div>
                         <div class="sugg-item">
                             <button class="sugg-btn"
-                                onclick="enviarConsultaRápida('¿Qué sistemas admiten motorización?')"><i
-                                    data-lucide="chevron-right"></i><span class="query-text">¿Qué motorizados
-                                    hay?</span></button>
-                            <button class="delete-query-btn" onclick="eliminarConsulta(this)" title="Eliminar"><i
-                                    data-lucide="x"></i></button>
+                                onclick="enviarConsultaRápida('Diferencias entre catálogo 2024 y 2026')">
+                                <i data-lucide="chevron-right"></i>
+                                <span class="query-text">Diferencias entre catálogos</span>
+                            </button>
+                            <button class="delete-query-btn" onclick="eliminarConsulta(this)" title="Eliminar">
+                                <i data-lucide="x"></i>
+                            </button>
                         </div>
                         <div class="sugg-item">
-                            <button class="sugg-btn" onclick="enviarConsultaRápida('Lamas con iluminación LED')"><i
-                                    data-lucide="chevron-right"></i><span class="query-text">Lamas con iluminación
-                                    LED</span></button>
-                            <button class="delete-query-btn" onclick="eliminarConsulta(this)" title="Eliminar"><i
-                                    data-lucide="x"></i></button>
+                            <button class="sugg-btn"
+                                onclick="enviarConsultaRápida('¿Qué sistemas admiten motorización?')">
+                                <i data-lucide="chevron-right"></i>
+                                <span class="query-text">¿Qué motorizados hay?</span>
+                            </button>
+                            <button class="delete-query-btn" onclick="eliminarConsulta(this)" title="Eliminar">
+                                <i data-lucide="x"></i>
+                            </button>
+                        </div>
+                        <div class="sugg-item">
+                            <button class="sugg-btn" onclick="enviarConsultaRápida('Lamas con iluminación LED')">
+                                <i data-lucide="chevron-right"></i>
+                                <span class="query-text">Lamas con iluminación LED</span>
+                            </button>
+                            <button class="delete-query-btn" onclick="eliminarConsulta(this)" title="Eliminar">
+                                <i data-lucide="x"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -989,7 +975,6 @@
 
             <main>
                 <div class="chat-history" id="chat-history">
-                    <!-- Mensaje inicial de la IA -->
                     <div class="message ai">
                         <div class="bubble">
                             <p>¡Hola! Soy el asistente técnico de Celosias de Saxun.</p>
@@ -1017,18 +1002,13 @@
         </div>
     </div>
 
-    <!-- Data Scripts (Loaded via Lazy Loading in iniciarApp) -->
-
-    <!-- App Logic -->
     <script>
-        // URLs de Proxy para Netlify (Seguridad)
+        // URLs de Proxy para Netlify
         const API_URL = "/api/gemini-stream";
         const UPLOAD_URL = "/.netlify/functions/upload-proxy";
 
         let pdfUris = [];
-        // Historial de conversación para contexto multi-turno
         let conversationHistory = [];
-
 
         // UI Elements
         const loadingScreen = document.getElementById('loading-screen');
@@ -1041,37 +1021,44 @@
         const sendBtn = document.getElementById('send-btn');
         const typingIndicator = document.getElementById('typing-indicator');
 
-        // Sidebar Responsive
         const hamburgerBtn = document.getElementById('hamburger-btn');
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebar-overlay');
 
-        // Initialize icons
         lucide.createIcons();
 
-        /**
-         * Crea un div.sugg-item con [button.sugg-btn] + [button.delete-query-btn].
-         * Estructura correcta: NO se anidan buttons en HTML.
-         */
+        // ─── Sidebar ────────────────────────────────────────────
+        function toggleSidebar() {
+            sidebar.classList.toggle('open');
+            sidebarOverlay.classList.toggle('open');
+        }
+
+        hamburgerBtn.addEventListener('click', toggleSidebar);
+        sidebarOverlay.addEventListener('click', toggleSidebar);
+
+        // ─── Consultas rápidas ───────────────────────────────────
         function crearBtnConsulta(texto, enviar) {
             const consulta = enviar || texto;
             const item = document.createElement('div');
             item.className = 'sugg-item';
             item.innerHTML = `
-                <button class="sugg-btn"><i data-lucide="chevron-right"></i><span class="query-text">${texto}</span></button>
-                <button class="delete-query-btn" title="Eliminar"><i data-lucide="x"></i></button>
+                <button class="sugg-btn">
+                    <i data-lucide="chevron-right"></i>
+                    <span class="query-text">${texto}</span>
+                </button>
+                <button class="delete-query-btn" title="Eliminar">
+                    <i data-lucide="x"></i>
+                </button>
             `;
-            // Asignar eventos después de crear el DOM
             item.querySelector('.sugg-btn').addEventListener('click', () => enviarConsultaRápida(consulta));
             item.querySelector('.delete-query-btn').addEventListener('click', () => eliminarConsulta(item.querySelector('.delete-query-btn')));
             return item;
         }
 
-        /** Elimina el div.sugg-item padre con animación */
         function eliminarConsulta(deleteBtn) {
             const item = deleteBtn.closest('.sugg-item');
             if (item) {
-                item.style.transition = 'opacity 0.2s, transform 0.2s, max-height 0.25s';
+                item.style.transition = 'opacity 0.2s, transform 0.2s';
                 item.style.opacity = '0';
                 item.style.transform = 'translateX(-10px)';
                 setTimeout(() => item.remove(), 220);
@@ -1087,26 +1074,26 @@
             }
         }
 
-        function toggleSidebar() {
-            sidebar.classList.toggle('open');
-            sidebarOverlay.classList.toggle('open');
-        }
-
-        hamburgerBtn.addEventListener('click', toggleSidebar);
-        sidebarOverlay.addEventListener('click', toggleSidebar);
-
-        /** Función auxiliar para cargar scripts dinámicamente con promesa */
+        // ─── Carga de scripts ────────────────────────────────────
+        /**
+         * FIX: comprueba si el script ya está en el DOM antes de añadirlo.
+         * Evita el error "Identifier already declared" al pulsar Reintentar.
+         */
         function loadScript(src) {
             return new Promise((resolve, reject) => {
+                if (document.querySelector(`script[src="${src}"]`)) {
+                    // Ya cargado, no hace falta repetir
+                    return resolve();
+                }
                 const script = document.createElement('script');
                 script.src = src;
                 script.onload = resolve;
-                script.onerror = () => reject(new Error(`Error al cargar el archivo: ${src}`));
+                script.onerror = () => reject(new Error(`Error al cargar: ${src}`));
                 document.body.appendChild(script);
             });
         }
 
-        // Initialize App
+        // ─── Inicialización ──────────────────────────────────────
         async function iniciarApp() {
             loadingScreen.classList.remove('hidden');
             appContainer.classList.add('hidden');
@@ -1115,32 +1102,28 @@
             progressBar.style.backgroundColor = 'var(--red-saxun)';
 
             try {
-                // FASE 1: Carga de archivos de datos (Lazy Loading)
+                // FASE 1: Cargar datos en orden correcto
+                // data_pdf2 y data_pdf3 ANTES que data_index (que los referencia)
                 const dataFiles = ['data_pdf2.js', 'data_pdf3.js', 'data_index.js'];
                 const totalFiles = dataFiles.length;
 
                 for (let i = 0; i < totalFiles; i++) {
                     loadingText.textContent = `Descargando catálogos técnicos... (${i + 1}/${totalFiles})`;
                     await loadScript(dataFiles[i]);
-                    const progress = Math.round(((i + 1) / totalFiles) * 50); // Ocupa el primer 50%
-                    progressBar.style.width = `${progress}%`;
+                    progressBar.style.width = `${Math.round(((i + 1) / totalFiles) * 50)}%`;
                 }
 
-                // FASE 2: Preparación de la API
+                // FASE 2: Conectar con la IA
                 loadingText.textContent = "Conectando con el motor de inteligencia técnica...";
 
-                // Obtener la API KEY de forma segura para la subida inicial
-                const keyResponse = await fetch('/.netlify/functions/get-key');
-                const { key } = await keyResponse.json();
-
-                // FASE 3: Inicializar PDFs en Gemini
-                pdfUris = await inicializarPDFs(key, (current, total, name) => {
-                    const percent = 50 + Math.round((current / total) * 50); // Ocupa del 50% al 100%
+                // FASE 3: Subir PDFs a Gemini (con caché de 47h)
+                pdfUris = await inicializarPDFs((current, total, name) => {
+                    const percent = 50 + Math.round((current / total) * 50);
                     progressBar.style.width = `${percent}%`;
                     loadingText.textContent = `Sincronizando conocimiento: ${name}...`;
                 });
 
-                // Finalización exitosa
+                // Éxito
                 loadingText.textContent = "¡Todo listo! Iniciando asistente...";
                 progressBar.style.width = '100%';
 
@@ -1152,14 +1135,14 @@
 
             } catch (error) {
                 console.error("Error en la inicialización:", error);
-                loadingText.textContent = `Error crítico: ${error.message}`;
+                loadingText.textContent = `Error: ${error.message}`;
                 progressBar.style.backgroundColor = '#E30613';
                 progressBar.style.width = '100%';
                 retryBtn.style.display = 'block';
             }
         }
 
-        // Action Handlers
+        // ─── Chat ────────────────────────────────────────────────
         function insertarTexto(texto) {
             chatInput.value = texto;
             chatInput.focus();
@@ -1173,11 +1156,7 @@
         }
 
         function renderMarkdown(text) {
-            if (typeof marked !== 'undefined') {
-                // Usar opciones por defecto de marked, que soportan tablas y listas
-                return marked.parse(text);
-            }
-            // Fallback muy básico si marked.js falla al cargar
+            if (typeof marked !== 'undefined') return marked.parse(text);
             return text.replace(/\n/g, '<br>');
         }
 
@@ -1201,26 +1180,18 @@
         }
 
         function scrollToBottom() {
-            // Un pequeño delay para permitir que el DOM se actualice, 
-            // útil especialmente cuando marked.js renderiza contenido grande (tablas, etc.)
-            setTimeout(() => {
-                chatHistory.scrollTop = chatHistory.scrollHeight;
-            }, 50);
+            setTimeout(() => { chatHistory.scrollTop = chatHistory.scrollHeight; }, 50);
         }
 
         async function enviarMensaje() {
             const texto = chatInput.value.trim();
             if (!texto) return;
 
-            // Bloquear input
             chatInput.value = '';
             chatInput.disabled = true;
             sendBtn.disabled = true;
 
-            // Mostrar mensaje de usuario
             appendMessage('user', texto);
-
-            // Mostrar typing indicator
             typingIndicator.style.display = 'flex';
             scrollToBottom();
 
@@ -1228,17 +1199,13 @@
             let aiMessageElement = null;
 
             try {
-                // ── Construir turno del usuario ──
-                // Los PDFs solo van en el PRIMER mensaje para no explotar el contexto
                 const esFirstMessage = conversationHistory.length === 0;
                 const userParts = esFirstMessage
                     ? [...buildPDFParts(pdfUris), { text: texto }]
                     : [{ text: texto }];
 
-                // Añadir turno del usuario al historial
                 conversationHistory.push({ role: "user", parts: userParts });
 
-                // Preparar payload con historial completo
                 const requestBody = {
                     system_instruction: {
                         parts: [{ text: typeof SYSTEM_PROMPT !== 'undefined' ? SYSTEM_PROMPT : "Eres un asistente técnico experto." }]
@@ -1256,28 +1223,23 @@
                     body: JSON.stringify(requestBody)
                 });
 
-                // ── Fix 3: Leer cuerpo del error para debugging ──
                 if (!response.ok) {
                     const errorBody = await response.text();
-                    console.error('Detalles del error API:', errorBody);
-                    throw new Error(`Error HTTP: ${response.status} - ${errorBody || 'Error desconocido'}`);
+                    throw new Error(`Error HTTP ${response.status}: ${errorBody || 'Error desconocido'}`);
                 }
 
-                // Verificar que no estemos recibiendo un HTML (indicativo de redirect fallido)
                 const contentType = response.headers.get('Content-Type');
                 if (contentType && contentType.includes('text/html')) {
-                    throw new Error("El servidor devolvió HTML en lugar de un stream. Posible error de configuración en las funciones de Netlify.");
+                    throw new Error("El servidor devolvió HTML. Revisa la configuración de las funciones de Netlify.");
                 }
 
-                // Ocultar indicador al recibir respuesta
                 typingIndicator.style.display = 'none';
 
-                // ── Procesar Stream con buffer de líneas incompletas ──
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
-                let sseBuffer = ''; // Buffer para chunks parciales
+                let sseBuffer = '';
 
-                // Crear burbuja IA vacía con animación de carga inicial
+                // Burbuja IA vacía con animación de carga
                 aiMessageElement = appendMessage('ai', '');
                 const bubble = aiMessageElement.querySelector('.bubble');
                 bubble.classList.add('loading');
@@ -1287,20 +1249,20 @@
                     const { done, value } = await reader.read();
                     if (done) break;
 
-                    // Acumular en buffer y separar por líneas completas
                     sseBuffer += decoder.decode(value, { stream: true });
                     const lines = sseBuffer.split('\n');
-                    sseBuffer = lines.pop(); // Última línea puede estar incompleta → queda en buffer
+                    sseBuffer = lines.pop(); // línea incompleta queda en buffer
 
                     for (const line of lines) {
                         if (line.startsWith('data: ')) {
                             try {
-                                const jsonStr = line.slice(6); // Más eficiente que replace
-                                const data = JSON.parse(jsonStr);
-                                if (data.candidates && data.candidates[0]?.content) {
+                                const data = JSON.parse(line.slice(6));
+
+                                if (data.error) throw new Error(data.error);
+
+                                if (data.candidates?.[0]?.content) {
                                     const partText = data.candidates[0].content.parts[0].text;
 
-                                    // Si es el primer fragmento de texto, eliminamos la animación de carga
                                     if (aiTextAccumulator === "") {
                                         bubble.classList.remove('loading');
                                         bubble.innerHTML = "";
@@ -1311,13 +1273,12 @@
                                     scrollToBottom();
                                 }
                             } catch (e) {
-                                // Chunk de JSON incompleto, se procesará en la siguiente iteración
+                                // Chunk incompleto, se procesará en el siguiente ciclo
                             }
                         }
                     }
                 }
 
-                // ── Guardar respuesta de la IA en el historial ──
                 if (aiTextAccumulator) {
                     conversationHistory.push({ role: "model", parts: [{ text: aiTextAccumulator }] });
                 }
@@ -1325,11 +1286,12 @@
             } catch (error) {
                 console.error("Error al consultar:", error);
                 typingIndicator.style.display = 'none';
-                // Si el último turno falló, eliminarlo del historial para no corromperlo
-                if (conversationHistory.length > 0 && conversationHistory[conversationHistory.length - 1].role === 'user') {
+                // Eliminar el último turno de usuario fallido del historial
+                if (conversationHistory.length > 0 &&
+                    conversationHistory[conversationHistory.length - 1].role === 'user') {
                     conversationHistory.pop();
                 }
-                appendMessage('ai', "Lo siento, ha ocurrido un error al procesar tu consulta. Por favor, revisa tu conexión y vuelve a intentarlo.");
+                appendMessage('ai', "Lo siento, ha ocurrido un error al procesar tu consulta. Por favor, revisa tu conexión e inténtalo de nuevo.");
             } finally {
                 chatInput.disabled = false;
                 sendBtn.disabled = false;
@@ -1338,26 +1300,23 @@
             }
         }
 
-        // Event Listeners
+        // ─── Event Listeners ─────────────────────────────────────
         sendBtn.addEventListener('click', enviarMensaje);
         chatInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                enviarMensaje();
-            }
+            if (e.key === 'Enter') enviarMensaje();
         });
 
-        // Registro de Service Worker para capacidades PWA
+        // ─── Service Worker (PWA) ────────────────────────────────
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('service-worker.js')
-                    .then(reg => console.log('Service Worker registrado con éxito'))
-                    .catch(err => console.error('Error al registrar Service Worker:', err));
+                    .then(() => console.log('✅ Service Worker registrado'))
+                    .catch(err => console.error('Error Service Worker:', err));
             });
         }
 
-        // Iniciar
+        // ─── Arranque ────────────────────────────────────────────
         window.onload = iniciarApp;
-
     </script>
 </body>
 

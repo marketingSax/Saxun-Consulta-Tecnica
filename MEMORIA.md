@@ -43,10 +43,12 @@ Aplicación web (PWA) de consulta técnica avanzada para sistemas de celosías S
 - [x] **Historial Multi-turno:** Conversación con memoria y gestión de contexto optimizada.
 - [x] **Refinamiento UI Premium:** Cabecera fina, logo fluido y mensaje de bienvenida personalizado.
 - [x] **SW v4:** `skipWaiting` + `clients.claim` + Network-First para HTML.
+- [x] **Optimización de Streaming SSE:** Reubicación de la Edge Function a la carpeta correcta y adición de lógica de "pings" para evitar timeouts durante el procesamiento de PDFs pesados.
+- [x] **Resiliencia de Proxy:** Implementado manejo de errores robusto tanto en el servidor (Edge Function) como en el cliente (Fetch SSE).
 
 ## 🚀 Próximos Pasos (Pendientes)
 - [ ] **Refactorización a Next.js:** Evaluación de migración para mayor escalabilidad.
 - [ ] **Búsqueda Semántica Local:** Explorar indexación vectorial en cliente para búsquedas ultra-rápidas pre-IA.
 
 ---
-*Ultima actualización: 12 de Mayo de 2026*
+*Ultima actualización: 13 de Mayo de 2026*

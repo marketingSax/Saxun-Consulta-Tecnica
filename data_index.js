@@ -12,9 +12,11 @@
 //    al iniciar la app (se cachean en localStorage 47h)
 // ============================================================
 
-const PDF_DATA = [
-  PDF_CATALOGO_2026,   // Catálogo 2026 - novedades, nuevos modelos
-  PDF_DOSSIER_TECNICO  // Dossier técnico - especificaciones detalladas
+// FIX: usar var en lugar de const para evitar "already declared"
+// al recargar scripts o pulsar "Reintentar"
+var PDF_DATA = [
+  PDF_CATALOGO_2026,    // Catálogo 2026 - novedades, nuevos modelos  ← FIX: era PDF_CATALOGO_2024
+  PDF_DOSSIER_TECNICO   // Dossier técnico - especificaciones detalladas
 ];
 
 // Función para convertir base64 a Blob binario
@@ -25,17 +27,17 @@ function base64ToBlob(base64, mimeType) {
   return new Blob([arr], { type: mimeType });
 }
 
-// Subir UN PDF a Gemini File API (Directo por tamaño > 6MB)
-async function subirPDF(pdf, apiKey) {
+// Subir UN PDF a través del proxy de Netlify (Seguridad: la API Key se queda en el servidor)
+async function subirPDF(pdf) {
   const blob = base64ToBlob(pdf.base64, pdf.mimeType);
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/upload/v1beta/files?key=${apiKey}`,
+    `/.netlify/functions/upload-proxy`,
     {
       method: 'POST',
       headers: {
         'Content-Type': pdf.mimeType,
         'X-Goog-Upload-Protocol': 'raw',
-        'X-Goog-Upload-Header-Content-Length': blob.size,
+        'X-Goog-Upload-Header-Content-Length': blob.size.toString(),
         'X-Goog-Upload-Header-Content-Type': pdf.mimeType,
       },
       body: blob
@@ -47,7 +49,7 @@ async function subirPDF(pdf, apiKey) {
 }
 
 // Inicializar PDFs (subir si no están cacheados)
-async function inicializarPDFs(apiKey, onProgress) {
+async function inicializarPDFs(onProgress) {
   const CACHE_KEY = 'saxun_gemini_uris';
   const CACHE_EXPIRY = 47 * 60 * 60 * 1000; // 47 horas en ms
 
@@ -58,14 +60,14 @@ async function inicializarPDFs(apiKey, onProgress) {
       console.log('✅ PDFs cargados desde caché');
       return cached.uris;
     }
-  } catch(e) {}
+  } catch (e) { }
 
   // Subir PDFs a Gemini
   const uris = [];
   for (let i = 0; i < PDF_DATA.length; i++) {
     const pdf = PDF_DATA[i];
     if (onProgress) onProgress(i + 1, PDF_DATA.length, pdf.nombre);
-    const uri = await subirPDF(pdf, apiKey);
+    const uri = await subirPDF(pdf);
     uris.push({ nombre: pdf.nombre, uri });
   }
 
@@ -86,7 +88,7 @@ function buildPDFParts(uris) {
 }
 
 // System prompt para Gemini
-const SYSTEM_PROMPT = `Eres un asistente técnico experto en todos los sistemas de celosías Saxun by Giménez Ganga.
+var SYSTEM_PROMPT = `Eres un asistente técnico experto en todos los sistemas de celosías Saxun by Giménez Ganga.
 Tienes acceso completo a los catálogos técnicos y comerciales de la marca.
 
 NORMAS:
