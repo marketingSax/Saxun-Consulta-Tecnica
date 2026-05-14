@@ -1,102 +1,83 @@
 // ============================================================
 // SAXUN CELOSÍAS - BASE DE DATOS DE PDFs
-// Incluye todos los documentos técnicos y catálogos
-// ============================================================
-// INSTRUCCIONES DE USO EN LA APP:
-// 1. Incluir en el HTML (en orden):
-//    <script src="data_pdf2.js"></script>
-//    <script src="data_pdf3.js"></script>
-//    <script src="data_index.js"></script>
-//
-// 2. Los PDFs se suben automáticamente a Gemini File API
-//    al iniciar la app (se cachean en localStorage 47h)
 // ============================================================
 
-/**
- * Obtiene los datos de los PDFs de forma segura, verificando que los scripts
- * de datos se hayan cargado correctamente.
- */
-function getPDFData() {
-  const data = [];
-  
-  // Verificamos cada variable global antes de usarla
-  if (typeof PDF_CATALOGO_2026 !== 'undefined') {
-    data.push(PDF_CATALOGO_2026);
-  } else {
-    console.warn("⚠️ PDF_CATALOGO_2026 no encontrado en la carga inicial.");
-  }
+var PDF_DATA = [
+  PDF_CATALOGO_2026,    // Catálogo 2026 - novedades, nuevos modelos
+  PDF_DOSSIER_TECNICO   // Dossier técnico - especificaciones detalladas
+];
 
-  if (typeof PDF_DOSSIER_TECNICO !== 'undefined') {
-    data.push(PDF_DOSSIER_TECNICO);
-  } else {
-    console.warn("⚠️ PDF_DOSSIER_TECNICO no encontrado en la carga inicial.");
-  }
-
-  return data;
-}
-
-// Función para convertir base64 a Blob binario con manejo de errores
+// Convierte base64 a Blob binario
 function base64ToBlob(base64, mimeType) {
-  try {
-    const raw = atob(base64);
-    const arr = new Uint8Array(raw.length);
-    for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
-    return new Blob([arr], { type: mimeType });
-  } catch (e) {
-    console.error("Error al decodificar base64:", e);
-    throw new Error("El archivo técnico parece estar corrupto o incompleto.");
-  }
+  const raw = atob(base64);
+  const arr = new Uint8Array(raw.length);
+  for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+  return new Blob([arr], { type: mimeType });
 }
 
-// Subir UN PDF a través del proxy de Netlify con protocolo resumable (Soporta >6MB)
+// ─── Subida en 2 pasos ────────────────────────────────────────────────────────
+// PASO 1: El proxy hace el handshake con Google y nos devuelve una uploadUrl.
+//         El PDF nunca pasa por Netlify → evitamos el límite de 6 MB.
+// PASO 2: Subimos el PDF directamente a Google usando esa uploadUrl.
+//         La uploadUrl tiene su propio token de sesión, sin exponer la API Key.
+// ─────────────────────────────────────────────────────────────────────────────
+
 async function subirPDF(pdf) {
   const blob = base64ToBlob(pdf.base64, pdf.mimeType);
-  
-  // FASE 1: Handshake seguro con el proxy para obtener la sesión de subida
-  const handshake = await fetch(`/.netlify/functions/upload-proxy`, {
+
+  // ── PASO 1: Obtener URL de sesión ──────────────────────────────────────────
+  const handshakeRes = await fetch('/.netlify/functions/upload-proxy', {
     method: 'POST',
-    headers: {
-      'X-Goog-Upload-Header-Content-Length': blob.size.toString(),
-      'X-Goog-Upload-Header-Content-Type': pdf.mimeType,
-      'x-filename': pdf.nombre
-    }
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      nombre: pdf.nombre,
+      mimeType: pdf.mimeType,
+      size: blob.size
+    })
   });
 
-  if (!handshake.ok) {
-    const errorData = await handshake.json().catch(() => ({ error: handshake.statusText }));
-    throw new Error(`Error en handshake de seguridad: ${errorData.error}`);
+  if (!handshakeRes.ok) {
+    const err = await handshakeRes.json().catch(() => ({ error: handshakeRes.statusText }));
+    throw new Error(`Handshake fallido para "${pdf.nombre}": ${err.error || handshakeRes.statusText}`);
   }
 
-  const { uploadUrl } = await handshake.json();
+  const { uploadUrl } = await handshakeRes.json();
 
-  // FASE 2: Subida directa del binario a la URL de sesión (Bypassa el límite de 6MB de Netlify)
-  // Nota: Esta URL de sesión es temporal y segura, no requiere API Key en esta fase.
-  const upload = await fetch(uploadUrl, {
+  if (!uploadUrl) {
+    throw new Error(`No se recibió uploadUrl para "${pdf.nombre}"`);
+  }
+
+  // ── PASO 2: Subir el PDF directamente a Google ─────────────────────────────
+  const uploadRes = await fetch(uploadUrl, {
     method: 'POST',
     headers: {
+      'Content-Length': blob.size.toString(),
       'X-Goog-Upload-Offset': '0',
       'X-Goog-Upload-Command': 'upload, finalize',
     },
     body: blob
   });
 
-  if (!upload.ok) throw new Error(`Fallo en la subida directa a Google: ${upload.statusText}`);
-  
-  const data = await upload.json();
+  if (!uploadRes.ok) {
+    const errText = await uploadRes.text();
+    throw new Error(`Error subiendo "${pdf.nombre}" a Google: ${uploadRes.status} - ${errText}`);
+  }
+
+  const data = await uploadRes.json();
+
+  if (!data?.file?.uri) {
+    throw new Error(`Google no devolvió URI para "${pdf.nombre}". Respuesta: ${JSON.stringify(data)}`);
+  }
+
+  console.log('✅ "' + pdf.nombre + '" subido → ' + data.file.uri);
   return data.file.uri;
 }
 
-// Inicializar PDFs (subir si no están cacheados)
+// ─── Inicializar PDFs (con caché de 47h en localStorage) ─────────────────────
 async function inicializarPDFs(onProgress) {
   const CACHE_KEY = 'saxun_gemini_uris';
-  const CACHE_EXPIRY = 47 * 60 * 60 * 1000; // 47 horas en ms
-  
-  const PDF_DATA = getPDFData();
-  if (PDF_DATA.length === 0) {
-    throw new Error("No se han podido cargar los datos de los catálogos técnicos.");
-  }
+  const CACHE_EXPIRY = 47 * 60 * 60 * 1000;
 
-  // Comprobar caché
   try {
     const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
     if (cached && (Date.now() - cached.timestamp) < CACHE_EXPIRY) {
@@ -105,70 +86,26 @@ async function inicializarPDFs(onProgress) {
     }
   } catch (e) { }
 
-  // Subir PDFs a Gemini
   const uris = [];
   for (let i = 0; i < PDF_DATA.length; i++) {
     const pdf = PDF_DATA[i];
     if (onProgress) onProgress(i + 1, PDF_DATA.length, pdf.nombre);
     const uri = await subirPDF(pdf);
-    uris.push({ nombre: pdf.nombre, uri, archivo: pdf.archivo });
+    uris.push({ nombre: pdf.nombre, uri });
   }
 
-  // Guardar en caché
-  localStorage.setItem(CACHE_KEY, JSON.stringify({
-    timestamp: Date.now(),
-    uris
-  }));
-
+  localStorage.setItem(CACHE_KEY, JSON.stringify({ timestamp: Date.now(), uris }));
   return uris;
 }
 
-/**
- * OPTIMIZACIÓN DE TOKENS: Selecciona solo los PDFs relevantes basados en la consulta.
- * Esto evita el error de "Token Limit" al no enviar 40MB de PDFs si no es necesario.
- */
-function seleccionarPDFsRelevantes(query, uris) {
-  const queryLower = query.toLowerCase();
-  
-  // Si la consulta es corta o genérica, o si hay pocos PDFs, los enviamos todos
-  if (query.length < 10 || uris.length <= 1) return uris;
-
-  const relevantes = [];
-  
-  // Lógica de filtrado inteligente
-  const tecnicosKeywords = ['medida', 'plano', 'perfil', 'instalacion', 'montaje', 'tecnico', 'dossier', 'especificacion', 'mk1014'];
-  const novedadesKeywords = ['2026', 'novedad', 'nuevo', 'mk1140', 'catalogo'];
-
-  const pideTecnico = tecnicosKeywords.some(k => queryLower.includes(k));
-  const pideNovedades = novedadesKeywords.some(k => queryLower.includes(k));
-
-  uris.forEach(u => {
-    const nombre = (u.nombre || '').toLowerCase();
-    const archivo = (u.archivo || '').toLowerCase();
-    
-    // Si detectamos keywords específicas, filtramos. Si no, incluimos por defecto para seguridad.
-    if (pideTecnico && (nombre.includes('tecnico') || archivo.includes('mk1014'))) {
-      relevantes.push(u);
-    } else if (pideNovedades && (nombre.includes('2026') || archivo.includes('mk1140'))) {
-      relevantes.push(u);
-    }
-  });
-
-  // Si no hemos encontrado nada específico, devolvemos todo para no perder contexto
-  return relevantes.length > 0 ? relevantes : uris;
-}
-
-// Construir partes de PDFs para la consulta a Gemini (con filtro de relevancia)
-function buildPDFParts(uris, query = "") {
-  const filtrados = seleccionarPDFsRelevantes(query, uris);
-  console.log(`📎 Adjuntando ${filtrados.length} de ${uris.length} documentos relevantes.`);
-  
-  return filtrados.map(u => ({
+// ─── Construir partes PDF para Gemini ────────────────────────────────────────
+function buildPDFParts(uris) {
+  return uris.map(u => ({
     fileData: { mimeType: 'application/pdf', fileUri: u.uri }
   }));
 }
 
-// System prompt para Gemini
+// ─── System Prompt ────────────────────────────────────────────────────────────
 var SYSTEM_PROMPT = `Eres un asistente técnico experto en todos los sistemas de celosías Saxun by Giménez Ganga.
 Tienes acceso completo a los catálogos técnicos y comerciales de la marca.
 
