@@ -3,11 +3,10 @@
 // ============================================================
 
 var PDF_DATA = [
-  PDF_CATALOGO_2026,    // Catálogo 2026 - novedades, nuevos modelos
-  PDF_DOSSIER_TECNICO   // Dossier técnico - especificaciones detalladas
+  PDF_CATALOGO_2026,
+  PDF_DOSSIER_TECNICO
 ];
 
-// Convierte base64 a Blob binario
 function base64ToBlob(base64, mimeType) {
   const raw = atob(base64);
   const arr = new Uint8Array(raw.length);
@@ -15,17 +14,10 @@ function base64ToBlob(base64, mimeType) {
   return new Blob([arr], { type: mimeType });
 }
 
-// ─── Subida en 2 pasos ────────────────────────────────────────────────────────
-// PASO 1: El proxy hace el handshake con Google y nos devuelve una uploadUrl.
-//         El PDF nunca pasa por Netlify → evitamos el límite de 6 MB.
-// PASO 2: Subimos el PDF directamente a Google usando esa uploadUrl.
-//         La uploadUrl tiene su propio token de sesión, sin exponer la API Key.
-// ─────────────────────────────────────────────────────────────────────────────
-
 async function subirPDF(pdf) {
   const blob = base64ToBlob(pdf.base64, pdf.mimeType);
 
-  // ── PASO 1: Obtener URL de sesión ──────────────────────────────────────────
+  // PASO 1: Proxy hace handshake con Google → devuelve uploadUrl
   const handshakeRes = await fetch('/.netlify/functions/upload-proxy', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -38,20 +30,17 @@ async function subirPDF(pdf) {
 
   if (!handshakeRes.ok) {
     const err = await handshakeRes.json().catch(() => ({ error: handshakeRes.statusText }));
-    throw new Error(`Handshake fallido para "${pdf.nombre}": ${err.error || handshakeRes.statusText}`);
+    throw new Error(`Handshake fallido para "${pdf.nombre}": ${err.error}`);
   }
 
   const { uploadUrl } = await handshakeRes.json();
+  if (!uploadUrl) throw new Error(`No se recibió uploadUrl para "${pdf.nombre}"`);
 
-  if (!uploadUrl) {
-    throw new Error(`No se recibió uploadUrl para "${pdf.nombre}"`);
-  }
-
-  // ── PASO 2: Subir el PDF directamente a Google ─────────────────────────────
+  // PASO 2: Frontend sube el PDF directamente a Google
+  // IMPORTANTE: NO incluir Content-Length — los navegadores lo bloquean (forbidden header)
   const uploadRes = await fetch(uploadUrl, {
     method: 'POST',
     headers: {
-      'Content-Length': blob.size.toString(),
       'X-Goog-Upload-Offset': '0',
       'X-Goog-Upload-Command': 'upload, finalize',
     },
@@ -60,20 +49,16 @@ async function subirPDF(pdf) {
 
   if (!uploadRes.ok) {
     const errText = await uploadRes.text();
-    throw new Error(`Error subiendo "${pdf.nombre}" a Google: ${uploadRes.status} - ${errText}`);
+    throw new Error(`Error subiendo "${pdf.nombre}": ${uploadRes.status} - ${errText}`);
   }
 
   const data = await uploadRes.json();
+  if (!data?.file?.uri) throw new Error(`Google no devolvió URI para "${pdf.nombre}"`);
 
-  if (!data?.file?.uri) {
-    throw new Error(`Google no devolvió URI para "${pdf.nombre}". Respuesta: ${JSON.stringify(data)}`);
-  }
-
-  console.log('✅ "' + pdf.nombre + '" subido → ' + data.file.uri);
+  console.log('✅ ' + pdf.nombre + ' → ' + data.file.uri);
   return data.file.uri;
 }
 
-// ─── Inicializar PDFs (con caché de 47h en localStorage) ─────────────────────
 async function inicializarPDFs(onProgress) {
   const CACHE_KEY = 'saxun_gemini_uris';
   const CACHE_EXPIRY = 47 * 60 * 60 * 1000;
@@ -98,14 +83,12 @@ async function inicializarPDFs(onProgress) {
   return uris;
 }
 
-// ─── Construir partes PDF para Gemini ────────────────────────────────────────
 function buildPDFParts(uris) {
   return uris.map(u => ({
     fileData: { mimeType: 'application/pdf', fileUri: u.uri }
   }));
 }
 
-// ─── System Prompt ────────────────────────────────────────────────────────────
 var SYSTEM_PROMPT = `Eres un asistente técnico experto en todos los sistemas de celosías Saxun by Giménez Ganga.
 Tienes acceso completo a los catálogos técnicos y comerciales de la marca.
 
