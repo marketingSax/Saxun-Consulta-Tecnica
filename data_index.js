@@ -48,24 +48,41 @@ function base64ToBlob(base64, mimeType) {
   }
 }
 
-// Subir UN PDF a través del proxy de Netlify (Seguridad: la API Key se queda en el servidor)
+// Subir UN PDF a través del proxy de Netlify con protocolo resumable (Soporta >6MB)
 async function subirPDF(pdf) {
   const blob = base64ToBlob(pdf.base64, pdf.mimeType);
-  const response = await fetch(
-    `/.netlify/functions/upload-proxy`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': pdf.mimeType,
-        'X-Goog-Upload-Protocol': 'raw',
-        'X-Goog-Upload-Header-Content-Length': blob.size.toString(),
-        'X-Goog-Upload-Header-Content-Type': pdf.mimeType,
-      },
-      body: blob
+  
+  // FASE 1: Handshake seguro con el proxy para obtener la sesión de subida
+  const handshake = await fetch(`/.netlify/functions/upload-proxy`, {
+    method: 'POST',
+    headers: {
+      'X-Goog-Upload-Header-Content-Length': blob.size.toString(),
+      'X-Goog-Upload-Header-Content-Type': pdf.mimeType,
+      'x-filename': pdf.nombre
     }
-  );
-  if (!response.ok) throw new Error(`Error subiendo ${pdf.nombre}: ${response.statusText}`);
-  const data = await response.json();
+  });
+
+  if (!handshake.ok) {
+    const errorData = await handshake.json().catch(() => ({ error: handshake.statusText }));
+    throw new Error(`Error en handshake de seguridad: ${errorData.error}`);
+  }
+
+  const { uploadUrl } = await handshake.json();
+
+  // FASE 2: Subida directa del binario a la URL de sesión (Bypassa el límite de 6MB de Netlify)
+  // Nota: Esta URL de sesión es temporal y segura, no requiere API Key en esta fase.
+  const upload = await fetch(uploadUrl, {
+    method: 'POST',
+    headers: {
+      'X-Goog-Upload-Offset': '0',
+      'X-Goog-Upload-Command': 'upload, finalize',
+    },
+    body: blob
+  });
+
+  if (!upload.ok) throw new Error(`Fallo en la subida directa a Google: ${upload.statusText}`);
+  
+  const data = await upload.json();
   return data.file.uri;
 }
 
