@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Asistente técnico inteligente de Saxun para la consulta de catálogos y dossiers de celosías.">
+    <meta name="description"
+        content="Asistente técnico inteligente de Saxun para la consulta de catálogos y dossiers de celosías.">
     <title>Consulta Técnica Celosías - Saxun</title>
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#E30613">
@@ -1202,7 +1203,7 @@
             try {
                 // OPTIMIZACIÓN: Solo enviamos los PDFs en el primer mensaje o si detectamos una consulta técnica específica
                 const esFirstMessage = conversationHistory.length === 0;
-                
+
                 // Usamos la nueva lógica de buildPDFParts que filtra por relevancia
                 const userParts = esFirstMessage
                     ? [...buildPDFParts(pdfUris, texto), { text: texto }]
