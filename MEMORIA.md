@@ -27,9 +27,9 @@ Aplicación web (PWA) de consulta técnica avanzada para sistemas de celosías S
 - `service-worker.js`: Gestión de caché y funcionamiento offline.
 - `manifest.json`: Configuración de la App instalable.
 - `data_index.js`: Lógica de gestión de PDFs, caché local (47h) y System Prompt.
-- `data_pdf[1-3].js`: Base de datos de catálogos técnicos en Base64.
+- `data_pdf[2-3].js`: Base de datos de catálogos técnicos en Base64.
 - `netlify/edge-functions/gemini-stream.js`: Proxy streaming SSE (Mapeado a /api/gemini-stream).
-- `netlify/functions/get-key.js`: Devuelve API key temporal para subida de PDFs.
+- `netlify/functions/upload-proxy.js`: Proxy seguro para subida de archivos a Gemini File API.
 - `netlify.toml`: Configuración de rutas Edge Functions + Functions + redirects.
 
 ## ✅ Hitos Completados

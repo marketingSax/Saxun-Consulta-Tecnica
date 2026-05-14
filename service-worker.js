@@ -5,7 +5,6 @@ const ASSETS_TO_CACHE = [
   '/manifest.json',
   '/logo.png',
   '/data_index.js',
-  '/data_pdf1.js',
   '/data_pdf2.js',
   '/data_pdf3.js',
   'https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js',

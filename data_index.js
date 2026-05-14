@@ -12,19 +12,40 @@
 //    al iniciar la app (se cachean en localStorage 47h)
 // ============================================================
 
-// FIX: usar var en lugar de const para evitar "already declared"
-// al recargar scripts o pulsar "Reintentar"
-var PDF_DATA = [
-  PDF_CATALOGO_2026,    // Catálogo 2026 - novedades, nuevos modelos  ← FIX: era PDF_CATALOGO_2024
-  PDF_DOSSIER_TECNICO   // Dossier técnico - especificaciones detalladas
-];
+/**
+ * Obtiene los datos de los PDFs de forma segura, verificando que los scripts
+ * de datos se hayan cargado correctamente.
+ */
+function getPDFData() {
+  const data = [];
+  
+  // Verificamos cada variable global antes de usarla
+  if (typeof PDF_CATALOGO_2026 !== 'undefined') {
+    data.push(PDF_CATALOGO_2026);
+  } else {
+    console.warn("⚠️ PDF_CATALOGO_2026 no encontrado en la carga inicial.");
+  }
 
-// Función para convertir base64 a Blob binario
+  if (typeof PDF_DOSSIER_TECNICO !== 'undefined') {
+    data.push(PDF_DOSSIER_TECNICO);
+  } else {
+    console.warn("⚠️ PDF_DOSSIER_TECNICO no encontrado en la carga inicial.");
+  }
+
+  return data;
+}
+
+// Función para convertir base64 a Blob binario con manejo de errores
 function base64ToBlob(base64, mimeType) {
-  const raw = atob(base64);
-  const arr = new Uint8Array(raw.length);
-  for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
-  return new Blob([arr], { type: mimeType });
+  try {
+    const raw = atob(base64);
+    const arr = new Uint8Array(raw.length);
+    for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+    return new Blob([arr], { type: mimeType });
+  } catch (e) {
+    console.error("Error al decodificar base64:", e);
+    throw new Error("El archivo técnico parece estar corrupto o incompleto.");
+  }
 }
 
 // Subir UN PDF a través del proxy de Netlify (Seguridad: la API Key se queda en el servidor)
@@ -52,6 +73,11 @@ async function subirPDF(pdf) {
 async function inicializarPDFs(onProgress) {
   const CACHE_KEY = 'saxun_gemini_uris';
   const CACHE_EXPIRY = 47 * 60 * 60 * 1000; // 47 horas en ms
+  
+  const PDF_DATA = getPDFData();
+  if (PDF_DATA.length === 0) {
+    throw new Error("No se han podido cargar los datos de los catálogos técnicos.");
+  }
 
   // Comprobar caché
   try {
@@ -68,7 +94,7 @@ async function inicializarPDFs(onProgress) {
     const pdf = PDF_DATA[i];
     if (onProgress) onProgress(i + 1, PDF_DATA.length, pdf.nombre);
     const uri = await subirPDF(pdf);
-    uris.push({ nombre: pdf.nombre, uri });
+    uris.push({ nombre: pdf.nombre, uri, archivo: pdf.archivo });
   }
 
   // Guardar en caché
@@ -80,9 +106,47 @@ async function inicializarPDFs(onProgress) {
   return uris;
 }
 
-// Construir partes de PDFs para la consulta a Gemini
-function buildPDFParts(uris) {
-  return uris.map(u => ({
+/**
+ * OPTIMIZACIÓN DE TOKENS: Selecciona solo los PDFs relevantes basados en la consulta.
+ * Esto evita el error de "Token Limit" al no enviar 40MB de PDFs si no es necesario.
+ */
+function seleccionarPDFsRelevantes(query, uris) {
+  const queryLower = query.toLowerCase();
+  
+  // Si la consulta es corta o genérica, o si hay pocos PDFs, los enviamos todos
+  if (query.length < 10 || uris.length <= 1) return uris;
+
+  const relevantes = [];
+  
+  // Lógica de filtrado inteligente
+  const tecnicosKeywords = ['medida', 'plano', 'perfil', 'instalacion', 'montaje', 'tecnico', 'dossier', 'especificacion', 'mk1014'];
+  const novedadesKeywords = ['2026', 'novedad', 'nuevo', 'mk1140', 'catalogo'];
+
+  const pideTecnico = tecnicosKeywords.some(k => queryLower.includes(k));
+  const pideNovedades = novedadesKeywords.some(k => queryLower.includes(k));
+
+  uris.forEach(u => {
+    const nombre = (u.nombre || '').toLowerCase();
+    const archivo = (u.archivo || '').toLowerCase();
+    
+    // Si detectamos keywords específicas, filtramos. Si no, incluimos por defecto para seguridad.
+    if (pideTecnico && (nombre.includes('tecnico') || archivo.includes('mk1014'))) {
+      relevantes.push(u);
+    } else if (pideNovedades && (nombre.includes('2026') || archivo.includes('mk1140'))) {
+      relevantes.push(u);
+    }
+  });
+
+  // Si no hemos encontrado nada específico, devolvemos todo para no perder contexto
+  return relevantes.length > 0 ? relevantes : uris;
+}
+
+// Construir partes de PDFs para la consulta a Gemini (con filtro de relevancia)
+function buildPDFParts(uris, query = "") {
+  const filtrados = seleccionarPDFsRelevantes(query, uris);
+  console.log(`📎 Adjuntando ${filtrados.length} de ${uris.length} documentos relevantes.`);
+  
+  return filtrados.map(u => ({
     fileData: { mimeType: 'application/pdf', fileUri: u.uri }
   }));
 }

@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Asistente técnico inteligente de Saxun para la consulta de catálogos y dossiers de celosías.">
     <title>Consulta Técnica Celosías - Saxun</title>
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#E30613">
@@ -1199,21 +1200,36 @@
             let aiMessageElement = null;
 
             try {
+                // OPTIMIZACIÓN: Solo enviamos los PDFs en el primer mensaje o si detectamos una consulta técnica específica
                 const esFirstMessage = conversationHistory.length === 0;
+                
+                // Usamos la nueva lógica de buildPDFParts que filtra por relevancia
                 const userParts = esFirstMessage
-                    ? [...buildPDFParts(pdfUris), { text: texto }]
+                    ? [...buildPDFParts(pdfUris, texto), { text: texto }]
                     : [{ text: texto }];
 
                 conversationHistory.push({ role: "user", parts: userParts });
+
+                // GESTIÓN DE HISTORIAL (Sliding Window): 
+                // Si el historial es muy largo (> 10 mensajes), mantenemos los 2 primeros (contexto inicial) 
+                // y los 4 últimos para ahorrar tokens sin perder el hilo.
+                let filteredHistory = [...conversationHistory];
+                if (filteredHistory.length > 10) {
+                    filteredHistory = [
+                        ...filteredHistory.slice(0, 2),
+                        { role: "user", parts: [{ text: "... [Historial resumido para optimizar memoria] ..." }] },
+                        ...filteredHistory.slice(-4)
+                    ];
+                }
 
                 const requestBody = {
                     system_instruction: {
                         parts: [{ text: typeof SYSTEM_PROMPT !== 'undefined' ? SYSTEM_PROMPT : "Eres un asistente técnico experto." }]
                     },
-                    contents: conversationHistory,
+                    contents: filteredHistory,
                     generationConfig: {
                         temperature: 0.2,
-                        maxOutputTokens: 4096
+                        maxOutputTokens: 2048 // Reducido de 4096 para mayor rapidez y ahorro
                     }
                 };
 
